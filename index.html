@@ -201,4 +201,157 @@ saveGame=function(){if(state){oldSave();localStorage.setItem('life-zombie-save',
 const oldLoad=loadGame;
 loadGame=function(){oldLoad();if(state){state.stats.감염=state.stats.감염||0;state.npcs.forEach(n=>{n.trust=n.trust??20;n.affection=n.affection??0;n.likes=n.likes||'편안한 대화';n.dislikes=n.dislikes||'무례한 태도';n.style=n.style||'주변을 살핀다.';n.romance=!!n.romance});state.dead=!!state.dead;if(state.dead)showDeath();render()}};
 
+
+/* LIFE 0.3 — illustrated survivor sprites, safe zones, regional atlas, combat and karma */
+document.querySelector('.pixel-editor')?.closest('.field')?.remove();
+const appearanceNote=document.createElement('div');
+appearanceNote.className='field wide';
+appearanceNote.innerHTML='<label>자동 생성 캐릭터 미리보기</label><div id="autoSpritePreview" class="panel small muted">외모 설정을 바탕으로 쯔꾸르풍 도트 캐릭터가 자동 생성됩니다.</div>';
+document.querySelector('#appearance')?.closest('.field')?.after(appearanceNote);
+const spritePal={skin:'#c99576',shade:'#855c4e',hair:'#49352e',hairHi:'#765344',eye:'#252126',shirt:'#4b574d',shirtHi:'#758274',pants:'#34485c',pantsHi:'#62788a',shoe:'#332f2b',metal:'#a9a49a'};
+function makeSprite(seed,dir='down',pose=0){
+ const a=Array(16*24).fill('transparent'),put=(x,y,c)=>{if(x>=0&&x<16&&y>=0&&y<24)a[y*16+x]=c};
+ const p=seed||{},hair=(p.hair||'').includes('금발')?'#b58a50':(p.hair||'').includes('갈색')?'#624538':'#302a29';
+ const skin=spritePal.skin,shirt=(p.outfit||'').includes('군용')?'#515b43':(p.outfit||'').includes('코트')?'#393d48':(p.outfit||'').includes('운동')?'#526477':'#454b48';
+ // shoes and legs
+ for(let y=20;y<23;y++)for(let x=4;x<7;x++)put(x,y,spritePal.shoe);
+ for(let y=20;y<23;y++)for(let x=9;x<12;x++)put(x,y,spritePal.shoe);
+ for(let y=15;y<21;y++)for(let x=4;x<7;x++)put(x,y,spritePal.pants);
+ for(let y=15;y<21;y++)for(let x=9;x<12;x++)put(x,y,spritePal.pants);
+ put(5,18,spritePal.pantsHi);put(10,17,spritePal.pantsHi);
+ // torso and arms
+ for(let y=9;y<16;y++)for(let x=4;x<12;x++)put(x,y,shirt);
+ for(let y=10;y<15;y++){put(3,y,shirt);put(12,y,shirt)}
+ put(3,15,skin);put(12,15,skin);
+ // neck and face
+ for(let x=7;x<9;x++)put(x,8,spritePal.shade);
+ for(let y=4;y<9;y++)for(let x=5;x<11;x++)put(x,y,skin);
+ for(let x=6;x<10;x++)put(x,4,hair);
+ for(let x=5;x<11;x++)put(x,3,hair);
+ put(5,5,hair);put(10,5,hair);put(6,3,spritePal.hairHi);put(9,3,spritePal.hairHi);
+ put(6,6,spritePal.eye);put(9,6,spritePal.eye);put(7,8,spritePal.shade);put(8,8,spritePal.shade);
+ if((p.hair||'').includes('긴')||(p.hair||'').includes('웨이브')){for(let y=6;y<12;y++){put(4,y,hair);put(11,y,hair)}}
+ if((p.hair||'').includes('묶')){put(11,4,hair);put(12,5,hair)}
+ if(dir==='up'){for(let x=5;x<11;x++)put(x,5,hair);for(let y=4;y<9;y++){put(6,y,hair);put(9,y,hair)}}
+ if(dir==='left'||dir==='right'){put(5,6,hair);put(10,6,skin);put(9,7,spritePal.eye)}
+ if(pose){put(2,12,shirt);put(13,11,skin);put(13,10,spritePal.metal)}
+ return a;
+}
+function spriteMarkup(seed,portrait=false){
+ const dirs=['down','up','left','right'];
+ return '<div class="sprite-sheet '+(portrait?'portrait-sheet':'')+'">'+dirs.map(d=>'<div class="sprite-frame"><div class="sprite-label">'+({down:'정면',up:'후면',left:'좌측',right:'우측'}[d])+'</div><div class="sprite-grid">'+makeSprite(seed,d).map(c=>'<i style="background:'+(c==='transparent'?'transparent':c)+'"></i>').join('')+'</div></div>').join('')+'</div>';
+}
+function previewAutoSprite(){const el=$('autoSpritePreview');if(!el)return;const p={hair:$('hair').value,outfit:$('outfit').value,eyes:$('eyes').value};el.innerHTML=spriteMarkup(p)+'<div class="muted" style="margin-top:8px">머리: '+p.hair+' · 눈: '+p.eyes+' · 복장: '+p.outfit+'</div>'}
+['hair','eyes','outfit'].forEach(id=>$(id)?.addEventListener('change',previewAutoSprite));
+const spriteStyle=document.createElement('style');
+spriteStyle.textContent='.sprite-sheet{display:flex;gap:8px;flex-wrap:wrap;align-items:end}.sprite-frame{background:#171d1b;border:1px solid #455149;border-radius:8px;padding:7px;text-align:center;min-width:74px}.sprite-label{font-size:10px;color:#b8c3b9;margin-bottom:5px}.sprite-grid{display:grid;grid-template-columns:repeat(16,5px);grid-template-rows:repeat(24,5px);width:80px;height:120px;image-rendering:pixelated;background:radial-gradient(#323a35,#202622)}.sprite-grid i{width:5px;height:5px}.portrait-sheet{justify-content:center}.portrait-sheet .sprite-grid{transform:scale(1.35);transform-origin:top center;margin:0 14px 42px}.portrait-sheet .sprite-frame{min-width:105px}#portrait{width:auto;height:auto;min-height:130px;padding:8px;display:block}.map-art{width:100%;height:auto;display:block;border-radius:8px;background:#202b29}.map-art text{font:12px system-ui;fill:#f0eadb;paint-order:stroke;stroke:#1b2422;stroke-width:3px;stroke-linejoin:round}.map-art .roadline{fill:none;stroke:#c6b58d;stroke-width:8;stroke-linecap:round;stroke-dasharray:2 2}.map-art .river{fill:none;stroke:#477b82;stroke-width:32}.map-art .zone{fill:#3e5948;stroke:#819277;stroke-width:2}.map-art .map-pin{cursor:pointer;fill:#e2bd73;stroke:#17211c;stroke-width:3}.map-art .map-pin.active{fill:#d97868;stroke:#fff}.combat-panel{border:1px solid #a65f53;background:#2d211f;border-radius:10px;padding:14px;margin-top:12px}.combat-panel button{margin:5px 4px 0 0}.status-chip{display:inline-block;padding:3px 7px;border:1px solid #66766a;border-radius:20px;margin:2px;font-size:11px}';
+document.head.appendChild(spriteStyle);
+const originalBeginFor03=beginGame;
+beginGame=function(){
+ originalBeginFor03();
+ if(!state)return;
+ state.person.pixelArt=null;
+ state.stats.건강=100;state.stats.감염=0;state.stats.스트레스=12;state.stats.트라우마=0;state.stats.카르마=50;
+ state.inventory=['생수','통조림','붕대','손전등','천','나뭇가지'];
+ state.region='안전 구역';state.karma=50;state.combat=null;state.dead=false;
+ state.npcs=makeDetailedNPCs();
+ writeLog('안전 구역 제3구획, 임시 거주 등록이 완료되었다. 외곽 출입은 허가증이 필요하다.');
+ render();saveGame();previewAutoSprite();
+};
+function makeDetailedNPCs(){
+ const specs=[
+ {name:'윤서진',age:31,job:'안전 구역 의무관',place:'clinic',personality:'책임감 강한 현실주의자',desc:'짧게 자른 검은 머리와 피곤한 눈. 소매를 걷은 의료복에 낡은 손목시계를 차고 있다.',likes:'정직한 보고와 의료 물자',dislikes:'근거 없는 낙관',trust:24,affection:3},
+ {name:'강태오',age:28,job:'정비 담당',place:'workshop',personality:'무뚝뚝하지만 의리 있는',desc:'짙은 갈색 머리를 대충 묶었다. 기름때 묻은 작업복과 왼쪽 뺨의 작은 흉터가 눈에 띈다.',likes:'도구 정리와 약속',dislikes:'장비를 함부로 다루는 행동',trust:18,affection:0},
+ {name:'최나린',age:23,job:'기록관 겸 정찰 보조',place:'shelter',personality:'호기심 많고 관찰력이 좋은',desc:'어깨까지 오는 밤색 머리, 둥근 안경. 목에 작은 쌍안경을 걸고 수첩을 들고 다닌다.',likes:'새로운 정보와 지도',dislikes:'질문을 무시하는 태도',trust:20,affection:5},
+ {name:'박도현',age:36,job:'안전 구역 경비 책임자',place:'police',personality:'엄격하고 경계심 강한',desc:'짧은 흑발과 굳은 표정. 낡은 방탄 조끼 위에 구역 완장을 착용했다.',likes:'규칙 준수와 침착함',dislikes:'무단 출입과 거짓말',trust:12,affection:0},
+ {name:'이하은',age:26,job:'식량 배급 담당',place:'square',personality:'사교적이고 낙천적인',desc:'높게 묶은 검은 머리, 햇볕에 그을린 얼굴. 군용 조끼 주머니마다 메모지가 꽂혀 있다.',likes:'협력과 유머',dislikes:'이기적인 행동',trust:28,affection:8}
+ ];
+ return specs.map(n=>({...n,relation:n.trust,romance:false,mood:'경계 중',style:n.desc}));
+}
+function renderCharacterPortrait(){
+ const el=$('portrait');if(el&&state)el.innerHTML=spriteMarkup(state.person,true);
+}
+const priorRender03=render;
+render=function(){if(!state)return;priorRender03();renderCharacterPortrait();$('pmeta').textContent=state.person.age+'세 · '+state.person.gender+' · '+state.person.hair;$('trait').textContent=state.person.desc||state.person.personality+' · '+state.person.skill+' · '+state.person.outfit+' · '+state.person.appearance;
+ $('stats').innerHTML=Object.entries(state.stats).map(([k,v])=>'<div class="barrow"><span>'+k+'</span><div class="bar"><i style="width:'+Math.max(0,Math.min(100,v))+'%;background:'+(v<25?'var(--red)':'var(--green)')+'"></i></div><b>'+Math.round(v)+'</b></div>').join('');
+ $('npcs').innerHTML=state.npcs.map(n=>'<div class="npc"><div><b>'+escapeHTML(n.name)+'</b><div class="small muted">'+n.age+'세 · '+escapeHTML(n.job)+'</div><div class="small">'+escapeHTML(n.personality)+'</div><div class="tag">'+(n.place===state.place?'이곳에 있음':(places.find(x=>x.id===n.place)?.name||'안전 구역'))+'</div></div><span class="small">♥ '+n.affection+'<br>신뢰 '+n.trust+'</span></div>').join('');
+ const oldInfo=$('survivalInfo');if(oldInfo)oldInfo.innerHTML='감염 '+state.stats.감염+'% · 스트레스 '+state.stats.스트레스+'% · 트라우마 '+state.stats.트라우마+'%<br>카르마 '+state.stats.카르마+' / 100 · '+(state.stats.카르마>=70?'타인을 돕는 생존자':state.stats.카르마<=30?'자기보존을 우선하는 생존자':'아직 평가가 엇갈리는 생존자')+'<br>건강 0 또는 감염 100이면 사망 판정.';
+};
+function drawAtlas(region){
+ const sets={
+ '안전 구역':['square','shelter','clinic','police','workshop','house'],
+ '마을 외곽':['forest','park','school','mall','hospital'],
+ '국도':['gas','base','mall']
+ };
+ const ids=sets[region]||sets['안전 구역'],visible=ids.map(id=>places.find(p=>p.id===id)).filter(Boolean);
+ const xy={square:[160,145],shelter:[260,185],clinic:[350,120],police:[105,250],workshop:[410,230],house:[250,280],forest:[100,90],park:[235,285],school:[360,270],mall:[430,105],hospital:[300,180],gas:[420,290],base:[130,245]};
+ const pins=visible.map(p=>{const [x,y]=xy[p.id];return '<g onclick="move(\''+p.id+'\')"><circle class="map-pin '+(p.id===state.place?'active':'')+'" cx="'+x+'" cy="'+y+'" r="9"/><text x="'+(x+13)+'" y="'+(y+4)+'">'+p.name+'</text></g>'}).join('');
+ $('atlasImage').innerHTML='<svg class="map-art" viewBox="0 0 560 360" role="img" aria-label="'+region+' 탐험 지도"><path class="zone" d="M22 25 Q110 2 210 28 T530 35 L535 320 Q420 350 300 330 T25 330Z"/><path class="river" d="M-10 270 Q100 215 175 245 T335 230 T570 160"/><path class="roadline" d="M65 170 Q170 80 275 160 T500 110 M180 35 Q220 150 265 325 M420 45 Q370 160 440 310"/><g opacity=".28" fill="#a4b18b"><circle cx="70" cy="70" r="24"/><circle cx="95" cy="95" r="18"/><circle cx="490" cy="260" r="30"/><circle cx="470" cy="285" r="20"/></g>'+pins+'</svg>';
+}
+function showRegion(region){const aliases={'마을':'안전 구역','외곽':'마을 외곽'};const r=aliases[region]||region;const sets={'안전 구역':['square','shelter','clinic','police','workshop','house'],'마을 외곽':['forest','park','school','mall','hospital'],'국도':['gas','base','mall']};$('regionNav').innerHTML=Object.keys(sets).map(x=>'<button class="'+(x===r?'primary':'')+'" onclick="showRegion(\''+x+'\')">'+x+'</button>').join('');drawAtlas(r);$('regionHint').textContent=r+' · 지도에서 장소를 선택해 이동할 수 있다.'}
+const priorMove03=move;
+move=function(id){if(!state||state.dead||state.combat)return;const dest=places.find(p=>p.id===id);if(!dest)return;const from=places.find(p=>p.id===state.place);const safe=['square','shelter','clinic','police','workshop','house'];const region=safe.includes(id)?'안전 구역':['gas','base'].includes(id)?'국도':'마을 외곽';state.region=region;priorMove03(id);if(!state.dead){showRegion(region);if(region!=='안전 구역'&&Math.random()<.38)randomEncounter('탐험 중');render();saveGame()}};
+function randomEncounter(trigger){
+ if(!state||state.dead)return;
+ const roll=Math.random();
+ if(roll<.43){
+  state.combat={enemy:'감염자',hp:35+Math.floor(Math.random()*26),max:60,turn:1};
+  state.stats.스트레스=Math.min(100,state.stats.스트레스+12);
+  writeLog('어둠 속에서 감염자가 모습을 드러냈다. 거리가 빠르게 좁혀진다.');
+  $('encounterBox').innerHTML='<div class="combat-panel"><b>⚠ 전투 발생 · 감염자</b><p>낡은 옷을 걸친 감염자가 비틀거리며 다가온다. 주변에 몸을 숨길 곳이 보인다.</p><div id="enemyHealth">감염자 상태: '+state.combat.hp+' / '+state.combat.max+'</div><button class="primary" onclick="combatAction(\'attack\')">맞서 싸우기</button><button onclick="combatAction(\'guard\')">방어 태세</button><button onclick="combatAction(\'escape\')">도망치기</button></div>';
+ }else if(roll<.62){
+  const npc=pick(state.npcs);writeLog('폐건물 입구에서 '+npc.name+'이(가) 당신을 불러 세웠다. '+npc.desc);
+  $('encounterBox').innerHTML='<div class="encounter"><b>우연한 만남</b><p>'+escapeHTML(npc.name)+' · '+escapeHTML(npc.personality)+'<br>'+escapeHTML(npc.desc)+'</p><button onclick="encounterChoice(\'help\')">도움 제안하기</button><button onclick="encounterChoice(\'talk\')">대화하기</button><button onclick="encounterChoice(\'leave\')">조용히 지나가기</button></div>';
+ }else if(roll<.82){
+  const item=pick(['생수','통조림','건전지','천','허브']);state.inventory.push(item);writeLog('잔해 아래에서 '+item+'을(를) 발견했다.');$('encounterBox').innerHTML='<div class="encounter"><b>발견</b><p>'+item+'을(를) 얻었다.</p></div>';
+ }else{
+  state.stats.스트레스=Math.min(100,state.stats.스트레스+8);writeLog('멀리서 들린 비명에 발걸음을 멈췄다. 누군가 이 근처에 있는 것 같다.');$('encounterBox').innerHTML='<div class="encounter"><b>불길한 소리</b><p>바람 사이로 짧은 비명이 들렸다.</p><button onclick="encounterChoice(\'investigate\')">소리가 난 곳 확인하기</button><button onclick="encounterChoice(\'leave\')">반대 방향으로 이동하기</button></div>';
+ }
+}
+function combatAction(action){
+ if(!state?.combat||state.dead)return;const c=state.combat;
+ if(action==='attack'){
+  const weapon=state.inventory.includes('수리 키트')?18:state.inventory.includes('공구')?15:11;
+  c.hp-=weapon+Math.floor(Math.random()*8);writeLog('침착하게 공격해 감염자에게 타격을 입혔다.');
+ }else if(action==='guard'){state.combat.guarding=true;writeLog('주변 지형을 이용해 몸을 보호했다.')}
+ else if(action==='escape'){
+  if(Math.random()<.62){state.combat=null;state.stats.스트레스=Math.min(100,state.stats.스트레스+10);writeLog('장애물을 돌아 간신히 거리를 벌렸다. 전투에서 벗어났다.');$('encounterBox').innerHTML='';render();saveGame();return}
+  writeLog('퇴로가 막혔다. 감염자가 따라붙는다.');
+ }
+ if(c.hp<=0){state.combat=null;state.stats.카르마=Math.max(0,state.stats.카르마-1);state.inventory.push(pick(['천','건전지','낡은 배지']));writeLog('감염자를 따돌렸다. 주변에서 작은 물건을 챙겼다.');$('encounterBox').innerHTML='<div class="encounter"><b>전투 종료</b><p>주변이 다시 조용해졌다.</p></div>'}
+ else{
+  const damage=c.guarding?3:8+Math.floor(Math.random()*7);c.guarding=false;state.stats.건강=Math.max(0,state.stats.건강-damage);state.stats.감염=Math.min(100,state.stats.감염+(Math.random()<.22?2:0));state.stats.스트레스=Math.min(100,state.stats.스트레스+4);writeLog('감염자의 움직임을 피하는 과정에서 건강이 '+damage+' 감소했다.');
+  $('encounterBox').innerHTML='<div class="combat-panel"><b>⚠ 전투 중 · 감염자</b><p>상대 상태: '+Math.max(0,c.hp)+' / '+c.max+'</p><p>내 건강: '+state.stats.건강+' · 감염: '+state.stats.감염+'%</p><button class="primary" onclick="combatAction(\'attack\')">공격</button><button onclick="combatAction(\'guard\')">방어</button><button onclick="combatAction(\'escape\')">도주 시도</button></div>';
+ }
+ checkDeath();render();saveGame();
+}
+function encounterChoice(choice){
+ if(!state)return;
+ if(choice==='help'){state.stats.카르마=Math.min(100,state.stats.카르마+5);state.npcs[0].trust=Math.min(100,state.npcs[0].trust+4);writeLog('도움을 주기로 했다. 카르마가 상승했다.')}
+ if(choice==='talk'){state.stats.카르마=Math.min(100,state.stats.카르마+1);writeLog('서로 필요한 정보를 나눴다.')}
+ if(choice==='leave'){state.stats.카르마=Math.max(0,state.stats.카르마-1);writeLog('위험을 피하기 위해 자리를 떠났다.')}
+ if(choice==='investigate'){randomEncounter('소리의 근원');return}
+ $('encounterBox').innerHTML='';advance(1);render();saveGame();
+}
+function checkDeath(){if(!state||state.dead)return;const s=state.stats;if(s.건강<=0||s.감염>=100){state.dead=true;writeLog('생존 한계에 도달했다. 이번 여정은 끝났다.');showDeath()}}
+const oldAdvance03=advance;
+advance=function(n=1){if(!state||state.dead)return;oldAdvance03(n);if(!state||state.dead)return;const s=state.stats;s.스트레스=Math.min(100,(s.스트레스||0)+n*.5);if(s.허기<=0)s.건강=Math.max(0,s.건강-3*n);if(s.갈증<=0)s.건강=Math.max(0,s.건강-5*n);if(s.스트레스>=95)s.기분=Math.max(0,s.기분-2*n);if(s.감염>=60)s.건강=Math.max(0,s.건강-1*n);checkDeath()};
+function relationshipAction(action){
+ if(!state||state.dead)return;const n=state.npcs.find(x=>x.place===state.place);if(!n){writeLog('이곳에는 만날 주민이 없다.');render();return}
+ if(action==='talk'){n.trust=Math.min(100,n.trust+6);n.affection=Math.min(100,n.affection+4);writeLog(n.name+'과(와) 대화를 나눴다. '+n.personality+' 성향에 맞춰 천천히 신뢰를 쌓았다.')}
+ if(action==='help'){if(state.inventory.includes('통조림')){state.inventory.splice(state.inventory.indexOf('통조림'),1);n.trust=Math.min(100,n.trust+14);n.affection=Math.min(100,n.affection+8);state.stats.카르마=Math.min(100,state.stats.카르마+5);writeLog(n.name+'에게 식량을 나눠 주었다. 신뢰와 카르마가 상승했다.')}else writeLog('나눠 줄 통조림이 없다.')}
+ if(action==='date'){if(n.trust>=45&&n.affection>=35){n.romance=true;n.affection=Math.min(100,n.affection+8);writeLog(n.name+'과(와) 안전 구역 안뜰을 산책했다. 서로의 마음을 조심스럽게 확인했다.')}else writeLog(n.name+'은(는) 아직 관계를 서두르고 싶지 않아 한다.')}
+ advance(1);render();saveGame();
+}
+const oldUseItem03=useItem;
+useItem=function(item){if(!state||state.dead)return;oldUseItem03(item);if(state){if(item==='소독제')state.stats.감염=Math.max(0,state.stats.감염-18);if(item==='붕대')state.stats.건강=Math.min(100,state.stats.건강+20);checkDeath();render();saveGame()}};
+const oldCraft03=craft;
+craft=function(i){if(!state||state.dead)return;oldCraft03(i);if(state){state.stats.카르마=Math.min(100,state.stats.카르마+0);render()}};
+const oldRandomize03=randomize;
+randomize=function(){oldRandomize03();setTimeout(previewAutoSprite,0)};
+const oldShowCreate03=showCreate;
+showCreate=function(){oldShowCreate03();document.querySelector('.pixel-editor')?.closest('.field')?.remove();previewAutoSprite()};
+const oldShowRegion03=showRegion;
+document.querySelector('#regionNav')?.insertAdjacentHTML('afterend','<div class="small muted">안전 구역을 거점으로 외곽 숲·병원·쇼핑몰·국도를 오갈 수 있다.</div>');
+
 </script></body></html>
