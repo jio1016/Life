@@ -548,4 +548,33 @@ beginGame=function(){
 const loadGameBefore04=loadGame;
 loadGame=function(){loadGameBefore04();if(!state)return;state.minute=state.minute||0;if(!(state.npcs||[]).some(n=>n.id))state.npcs=makeDetailedNPCs();else state.npcs=state.npcs.map(n=>({...n,met:!!n.met,eventDone:!!n.eventDone}));state.region=places.find(p=>p.id===state.place)?.region||'안전 구역';render();showRegion(state.region)};
 
+
+/* Keep undiscovered NPC identities private during ambient encounters. */
+randomEncounter=function(trigger){
+ if(!state||state.dead)return;
+ const roll=Math.random();
+ if(roll<.52){
+  state.combat={enemy:'감염자',hp:38+Math.floor(Math.random()*25),max:63,turn:1};
+  state.stats.스트레스=Math.min(100,(state.stats.스트레스||0)+12);
+  writeLog('골목의 차량 잔해 뒤에서 감염자가 모습을 드러냈다. 가까운 곳에서 빠르게 움직이는 소리가 들린다.');
+  $('encounterBox').innerHTML='<div class="event-card"><b>⚠ 감염자 조우</b><p>감염자가 길을 막아섰다. 주변을 살피며 상황을 판단해야 한다.</p><button onclick="combatAction(\'attack\')">대응하기</button><button onclick="combatAction(\'guard\')">방어 태세</button><button onclick="combatAction(\'escape\')">거리 벌리기</button></div>';
+ }else if(roll<.78){
+  const item=pick(['생수','통조림','건전지','천','허브']);
+  state.inventory.push(item);writeLog('무너진 진열대 아래에서 '+item+'을(를) 발견했다.');
+  $('encounterBox').innerHTML='<div class="event-card"><b>물자 발견</b><p>'+item+'을(를) 가방에 넣었다.</p></div>';
+ }else{
+  state.stats.스트레스=Math.min(100,(state.stats.스트레스||0)+7);
+  writeLog('멀리서 금속이 부딪히는 소리가 났다. 한동안 주변을 살폈지만 움직임은 보이지 않았다.');
+  $('encounterBox').innerHTML='<div class="event-card"><b>불길한 소리</b><p>서울의 적막 사이로 짧은 소음이 울렸다.</p><button onclick="document.getElementById(\'encounterBox\').innerHTML=\'\'">계속 이동</button></div>';
+ }
+ render();saveGame();
+};
+const craftBefore05=craft;
+craft=function(i){
+ if(!state||state.dead)return;
+ const logCount=state.log.length;
+ craftBefore05(i);
+ const success=state.log.length>logCount&&state.log[state.log.length-1].text.includes('제작을 완료했다');
+ if(success){advanceMinutes(i===3?50:30);render();saveGame()}
+};
 </script></body></html>
