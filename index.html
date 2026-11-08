@@ -354,4 +354,19 @@ showCreate=function(){oldShowCreate03();document.querySelector('.pixel-editor')?
 const oldShowRegion03=showRegion;
 document.querySelector('#regionNav')?.insertAdjacentHTML('afterend','<div class="small muted">안전 구역을 거점으로 외곽 숲·병원·쇼핑몰·국도를 오갈 수 있다.</div>');
 
+
+/* final balancing */
+$('age').min='18';
+const randomizeFinal=randomize;
+randomize=function(){randomizeFinal();$('age').value=18+Math.floor(Math.random()*40);previewAutoSprite()};
+const baseMoveFinal=oldMove;
+move=function(id){
+ if(!state||state.dead||state.combat)return;
+ const dest=places.find(p=>p.id===id);if(!dest)return;
+ const safe=['square','shelter','clinic','police','workshop','house'];
+ state.region=safe.includes(id)?'안전 구역':['gas','base'].includes(id)?'국도':'마을 외곽';
+ baseMoveFinal(id);
+ if(!state.dead&&state.region!=='안전 구역'&&Math.random()<.38)randomEncounter('탐험 중');
+ render();saveGame();showRegion(state.region);
+};
 </script></body></html>
