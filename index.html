@@ -108,7 +108,7 @@ const Game={
   this.addMinutes(mins);this.afterAction();},
  move(id){const s=this.state;if(!s||s.world.ending||s.combat)return;const dest=PLACES.find(x=>x.id===id);if(!dest)return;const cur=PLACES.find(x=>x.id===s.world.place);const travel=dest.region===cur.region?10:rand(25,45);s.world.place=id;s.world.region=dest.region;s.world.visited.push(id);this.addMinutes(travel);this.log(dest.name+'(으)로 이동했다. 이동 시간 '+travel+'분.');$('sceneText').textContent=dest.desc;$('eventBox').innerHTML='';this.afterAction();if(!s.world.ending&&dest.safe){this.tryNpcAtPlace()}else if(!s.world.ending&&!dest.safe&&Math.random()<.48){this.encounter()}this.drawMap();this.render();},
  afterAction(){this.checkDeath();if(!this.state.world.ending){this.checkGoal();this.render()}},
- findLoot(){const pool=['water','can','cloth','herb','battery','scrap'];const key=pool[rand(0,pool.length-1)];if(this.addItem(key,1))this.log(ITEM[key].name+'을(를) 발견했다.');else this.log('가방이 가득 차 있어 물자를 챙기지 못했다.')},
+ findLoot(){const pool=['water','can','cloth','herb','battery','scrap','guardgear'];const key=pool[rand(0,pool.length-1)];if(this.addItem(key,1))this.log(ITEM[key].name+'을(를) 발견했다.');else this.log('가방이 가득 차 있어 물자를 챙기지 못했다.')},
  itemCount(k){return this.state.inventory[k]||0},
  weight(){return Object.entries(this.state.inventory).reduce((a,[k,v])=>a+(ITEM[k]?.weight||1)*v,0)},
  addItem(k,n){const s=this.state;if(this.weight()+(ITEM[k]?.weight||1)*n>s.player.capacity||Object.values(s.inventory).filter(v=>v>0).length>=s.player.slots&&!s.inventory[k])return false;s.inventory[k]=(s.inventory[k]||0)+n;if(k==='radio')s.goal.radio=true;return true},
