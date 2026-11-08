@@ -159,7 +159,7 @@ advance=function(n=1){if(!state||state.dead)return;oldAdvance(n);const s=state.s
 function showDeath(){if($('deathOverlay'))return;const d=document.createElement('div');d.id='deathOverlay';d.className='dead-screen';d.innerHTML='<div class="panel"><div class="danger small">SURVIVAL FAILED</div><h1>이번 여정은 끝났다.</h1><p class="muted">DAY '+state.day+' · '+state.person.name+'</p><p>건강이나 감염 상태를 관리하지 못해 생존을 이어 갈 수 없게 되었다.</p><button class="primary" onclick="newRunAfterDeath()">새로운 생존자 만들기</button></div>';document.body.appendChild(d)}
 function newRunAfterDeath(){localStorage.removeItem('life-zombie-save');state=null;$('deathOverlay')?.remove();showCreate()}
 const oldMove=move;
-move=function(id){if(!state||state.dead)return;const before=state.place;oldMove(id);if(state.dead)return;const encounterChance=id===before?.08:.28;if(Math.random()<encounterChance)randomEncounter('이동');render();saveGame()};
+move=function(id){if(!state||state.dead)return;const before=state.place;oldMove(id);if(state.dead)return;const encounterChance=id===before ? 0.08 : 0.28;if(Math.random()<encounterChance)randomEncounter('이동');render();saveGame()};
 const oldAct=act;
 act=function(kind){if(!state||state.dead)return;oldAct(kind);if(state.dead)return;if(kind==='탐색'&&Math.random()<.48)randomEncounter('탐색');render();saveGame()};
 function randomEncounter(trigger){const choices=[
@@ -170,7 +170,7 @@ function randomEncounter(trigger){const choices=[
 ()=>{state.stats.건강=Math.max(0,state.stats.건강-8);state.stats.감염=Math.min(100,(state.stats.감염||0)+5);writeLog('위험한 상황을 간신히 벗어났다. 몸에 작은 상처가 생겼다.');state.lastEncounter='위험한 조우';},
 ()=>{const n=pick(state.npcs);writeLog(n.name+'이(가) 필요한 물자를 찾고 있다. 도와주면 신뢰를 얻을 수 있을 것 같다.');state.lastEncounter='주민의 부탁';}
 ];pick(choices)();$('encounterBox').innerHTML='<div class="encounter"><b>⚑ 랜덤 인카운터 · '+trigger+'</b><div class="small">'+escapeHTML(state.lastEncounter)+'</div></div>'}
-function useItem(item){if(!state||state.dead)return;const i=state.inventory.indexOf(item);if(i<0)return;const effects={'생수':['갈증',42],'물병':['갈증',35],'통조림':['허기',35],'빵':['허기',25],'식량':['허기',40],'붕대':['건강',22],'진통제':['건강',12],'소독제':['감염',-18],'허브':['기분',8],'담요':['피로',10]};const e=effects[item];if(!e){writeLog(item+'은(는) 지금 사용할 수 있는 효과가 없다.');return}state.inventory.splice(i,1);state.stats[e[0]]=Math.max(0,Math.min(100,state.stats[e[0]]+e[1]));writeLog(item+'을(를) 사용했다. '+e[0]+' 상태가 변했다.');render();saveGame()}
+function useItem(item){if(!state||state.dead)return;const i=state.inventory.indexOf(item);if(i<0)return;const effects={'생수':['갈증',42],'정수된 물':['갈증',55],'물병':['갈증',35],'통조림':['허기',35],'빵':['허기',25],'식량':['허기',40],'붕대':['건강',22],'진통제':['건강',12],'소독제':['감염',-18],'허브':['기분',8],'담요':['피로',10]};const e=effects[item];if(!e){writeLog(item+'은(는) 지금 사용할 수 있는 효과가 없다.');return}state.inventory.splice(i,1);state.stats[e[0]]=Math.max(0,Math.min(100,state.stats[e[0]]+e[1]));writeLog(item+'을(를) 사용했다. '+e[0]+' 상태가 변했다.');render();saveGame()}
 const recipes=[
 {name:'응급 붕대',needs:{'천':2,'허브':1},makes:'붕대',desc:'천 2 + 허브 1'},
 {name:'간이 정수 물',needs:{'생수':1,'허브':1},makes:'정수된 물',desc:'생수 1 + 허브 1'},
