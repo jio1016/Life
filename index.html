@@ -9,6 +9,19 @@
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0%,#24352a 0,#101713 42%);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Noto Sans KR",sans-serif}button,input,select,textarea{font:inherit}button{border:1px solid var(--line);background:#28372d;color:var(--text);padding:10px 13px;border-radius:9px;cursor:pointer;transition:.15s}button:hover{border-color:var(--green);background:#34483a}button:disabled{opacity:.35;cursor:not-allowed}.wrap{max-width:1180px;margin:auto;padding:22px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:18px}.brand{font-size:22px;letter-spacing:4px;font-weight:800}.brand small{display:block;font-size:10px;letter-spacing:2px;color:var(--muted);font-weight:500}.pill{border:1px solid var(--line);padding:6px 10px;border-radius:30px;color:var(--muted);font-size:12px}.screen{display:none}.screen.active{display:block}.panel{background:linear-gradient(145deg,#1b2820,#151e19);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 12px 35px #0003}.intro{max-width:760px;margin:8vh auto;text-align:center;padding:35px}.intro h1{font-size:clamp(32px,6vw,58px);line-height:1.1;letter-spacing:-2px}.intro p{color:var(--muted);max-width:580px;margin:18px auto 26px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:12px;color:var(--muted)}input,select,textarea{width:100%;padding:10px;background:#111a14;border:1px solid var(--line);border-radius:8px;color:var(--text)}.wide{grid-column:1/-1}.muted{color:var(--muted)}.small{font-size:12px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.primary{background:#526c51;border-color:#789477}.gold{color:var(--accent)}.gamegrid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(260px,.85fr);gap:14px}.map{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:14px}.place{min-height:92px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;background:#202d25}.place strong{font-size:14px}.place span{font-size:11px;color:var(--muted)}.place.current{border-color:var(--accent);background:#3a3829}.barrow{display:grid;grid-template-columns:62px 1fr 32px;gap:8px;align-items:center;margin:9px 0;font-size:12px}.bar{height:8px;background:#0d140f;border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:var(--green);border-radius:9px}.log{height:320px;overflow:auto;background:#101812;border:1px solid var(--line);border-radius:9px;padding:13px;font-size:13px}.entry{padding:8px 0;border-bottom:1px solid #29372d}.entry time{color:var(--accent);font-size:11px;margin-right:7px}.npc{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.tag{font-size:11px;color:var(--accent)}.sectiontitle{display:flex;justify-content:space-between;align-items:center;margin:0 0 10px}.portrait{width:92px;height:112px;border:1px solid var(--line);border-radius:10px;background:#29372d;display:grid;place-items:center;font-size:42px}.profile{display:flex;gap:13px;align-items:center}.toast{color:var(--green);min-height:22px;font-size:12px}.danger{color:var(--red)}@media(max-width:760px){.wrap{padding:12px}.gamegrid,.grid2{grid-template-columns:1fr}.map{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:1fr}.wide{grid-column:auto}.intro{margin:4vh auto;padding:22px}.top{align-items:flex-start}}
 
 .pixel-editor{background:#111a14;border:1px solid var(--line);border-radius:12px;padding:13px}.pixel-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}.pixel-work{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}.pixel-canvas{display:grid;grid-template-columns:repeat(16, minmax(0,1fr));width:min(100%,320px);aspect-ratio:2/3;gap:1px;background:#34463a;border:2px solid #526653;image-rendering:pixelated;touch-action:manipulation}.pixel-cell{min-width:0;min-height:0;padding:0;border:0;border-radius:0;background:#1a241d;cursor:crosshair}.pixel-cell:hover{outline:1px solid #fff;z-index:1}.pixel-side{min-width:150px;flex:1}.pixel-palette{display:grid;grid-template-columns:repeat(5,30px);gap:6px;margin-top:7px}.swatch{width:30px;height:30px;padding:0;border:2px solid #68786a;border-radius:5px}.swatch.selected{outline:2px solid var(--accent);outline-offset:2px}.pixel-selected{width:30px;height:30px;border:1px solid #839184;border-radius:5px;margin-top:6px}.pixel-avatar{display:grid;grid-template-columns:repeat(16,1fr);width:92px;height:138px;image-rendering:pixelated;background:#1a241d;border:1px solid var(--line);border-radius:5px;overflow:hidden}.pixel-avatar span{min-width:0;min-height:0}
+
+/* expanded survival systems */
+.atlas{margin-top:14px;background:#101812;border:1px solid var(--line);border-radius:12px;padding:10px}
+.atlas svg{display:block;width:100%;height:auto;max-height:360px;background:#26382d;border-radius:8px}
+.atlas .land{fill:#344c3c;stroke:#71866f;stroke-width:2}.atlas .water{fill:#294b55}.atlas .road{fill:none;stroke:#c4b68b;stroke-width:5;stroke-dasharray:8 5;opacity:.85}
+.atlas .pin{cursor:pointer;fill:#e1c17b;stroke:#17231a;stroke-width:3}.atlas .pin.active{fill:#d97868;stroke:#fff;stroke-width:4}
+.atlas text{font:12px system-ui;fill:#fff;paint-order:stroke;stroke:#1b281f;stroke-width:3px;stroke-linejoin:round;pointer-events:none}
+.region-nav{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.region-nav button{font-size:12px;padding:7px 10px}
+.system-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.system-grid .panel{padding:14px}.item-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--line)}
+.item-row button{padding:5px 8px;font-size:11px}.encounter{border:1px solid #806c42;background:#302c20;border-radius:10px;padding:12px;margin-top:12px}
+.dead-screen{position:fixed;inset:0;background:#080c0aee;z-index:20;display:grid;place-items:center;padding:20px;text-align:center}.dead-screen .panel{max-width:520px}
+@media(max-width:760px){.system-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body><div class="wrap">
@@ -39,7 +52,15 @@
 </div><div class="actions"><button class="primary" onclick="beginGame()">이 인물로 살아가기</button><button onclick="randomize()">다시 무작위 설정</button><button onclick="show('start')">돌아가기</button></div></div></section>
 <section id="game" class="screen">
 <div class="gamegrid"><main>
-<div class="panel"><div class="sectiontitle"><div><div class="tag" id="date">DAY 1 · 오전</div><h2 id="placeTitle">마을 광장</h2></div><div class="pill" id="weather">흐림</div></div><p id="placeDesc" class="muted">낮은 건물 사이로 바람이 분다.</p><div class="map" id="map"></div></div>
+<div class="panel"><div class="sectiontitle"><div><div class="tag" id="date">DAY 1 · 오전</div><h2 id="placeTitle">마을 광장</h2></div><div class="pill" id="weather">흐림</div></div><p id="placeDesc" class="muted">낮은 건물 사이로 바람이 분다.</p><div class="map" id="map"></div>
+<div class="atlas" id="atlas"><div class="sectiontitle"><b>주변 지역 지도</b><span class="small muted">지점을 선택해 이동</span></div><div id="atlasImage"></div><div id="regionNav" class="region-nav"></div><div class="small muted" id="regionHint">현재 위치와 주변 지점을 확인할 수 있다.</div></div>
+<div class="system-grid">
+ <div class="panel"><div class="sectiontitle"><h3>인벤토리</h3><span class="small muted">아이템 사용</span></div><div id="itemActions"></div></div>
+ <div class="panel"><div class="sectiontitle"><h3>제작 작업대</h3><span class="small muted">재료를 조합</span></div><div id="craftActions"></div></div>
+ <div class="panel"><div class="sectiontitle"><h3>주민과 관계</h3><span class="small muted">대화와 호감</span></div><div id="relationshipActions"></div></div>
+ <div class="panel"><div class="sectiontitle"><h3>생존 정보</h3><span class="small muted">위험 상태</span></div><div id="survivalInfo" class="small muted"></div></div>
+</div><div id="encounterBox"></div>
+</div>
 <div class="panel" style="margin-top:14px"><div class="sectiontitle"><h3>오늘의 기록</h3><span class="small muted">행동과 만남이 기록됩니다</span></div><div id="log" class="log"></div><div class="actions"><button onclick="act('탐색')">주변 살펴보기</button><button onclick="act('휴식')">잠시 휴식</button><button onclick="act('식사')">식량 먹기</button><button onclick="act('물')">물 마시기</button><button onclick="act('정리')">소지품 정리</button></div></div>
 </main><aside>
 <div class="panel"><div class="profile"><div class="portrait" id="portrait">🧍</div><div><h3 id="pname" style="margin:0">생존자</h3><div class="small muted" id="pmeta"></div><div class="tag" id="pjob"></div></div></div><hr style="border-color:var(--line);margin:15px 0"><div id="stats"></div><p class="small muted" id="trait"></p></div>
@@ -111,4 +132,73 @@ function escapeHTML(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','
 function saveGame(){if(!state)return;localStorage.setItem('life-zombie-save',JSON.stringify(state));$('toast').textContent='저장 완료 · 이 브라우저에 진행 상황을 보관했어.'}
 function loadGame(){let s=localStorage.getItem('life-zombie-save');if(!s){alert('저장된 게임이 없어. 새로운 인생을 시작해 줘.');return}try{state=JSON.parse(s);render();show('game')}catch(e){alert('저장 데이터를 불러오지 못했어. 새 게임을 시작해 줘.')}}
 pixelReset();
+
+/* LIFE 0.2 — world, encounters, crafting, relationships and mortality */
+const extraPlaces=[
+{id:'forest',name:'북쪽 숲',icon:'🌲',desc:'젖은 낙엽과 쓰러진 나무 사이로 작은 오솔길이 이어진다.',loot:['허브','버섯','나뭇가지','천'],region:'외곽'},
+{id:'mall',name:'폐쇄된 쇼핑몰',icon:'🏬',desc:'셔터가 내려간 상점가. 유리 천장 너머로 빛이 희미하게 들어온다.',loot:['통조림','건전지','천','생수'],region:'외곽'},
+{id:'hospital',name:'시립 종합병원',icon:'🩺',desc:'비상등만 깜빡이는 병원. 남겨진 의료 물자를 찾아볼 수 있다.',loot:['붕대','소독제','진통제','마스크'],region:'외곽'},
+{id:'base',name:'외곽 군 임시기지',icon:'⛺',desc:'철제 펜스와 임시 천막이 남아 있는 통제 구역.',loot:['건전지','통조림','공구','무전기'],region:'외곽'},
+{id:'gas',name:'국도 주유소',icon:'⛽',desc:'국도로 이어지는 작은 주유소. 창고 문이 반쯤 열려 있다.',loot:['생수','천','건전지','연료통'],region:'국도'}
+];
+extraPlaces.forEach(p=>{p.region=p.region||'마을';places.push(p)});
+const regionOf=id=>places.find(p=>p.id===id)?.region||'마을';
+const personalityProfiles=[
+{type:'신중한',like:'차분한 대화',dislike:'성급한 결정',style:'말하기 전에 잠시 생각한다.'},
+{type:'낙천적인',like:'농담과 격려',dislike:'비관적인 말',style:'어려운 상황에서도 작은 희망을 찾는다.'},
+{type:'경계심이 강한',like:'약속을 지키는 행동',dislike:'갑작스러운 접근',style:'상대의 말보다 행동을 오래 지켜본다.'},
+{type:'다정한',like:'도움과 배려',dislike:'무례한 태도',style:'상대의 안부를 먼저 묻는다.'},
+{type:'독립적인',like:'선택을 존중하는 태도',dislike:'지나친 간섭',style:'혼자 결정하고 움직이는 편이다.'},
+{type:'호기심 많은',like:'새로운 정보',dislike:'대화의 단절',style:'사소한 것도 질문으로 이어 간다.'},
+{type:'현실적인',like:'실질적인 도움',dislike:'근거 없는 약속',style:'가능한 일과 불가능한 일을 분명히 나눈다.'}
+];
+const oldBeginGame=beginGame;
+beginGame=function(){oldBeginGame();state.stats.감염=0;state.npcs.forEach((n,i)=>{const profile=personalityProfiles[(i*2+Math.floor(Math.random()*personalityProfiles.length))%personalityProfiles.length];n.personality=profile.type;n.likes=profile.like;n.dislikes=profile.dislike;n.style=profile.style;n.trust=10+Math.floor(Math.random()*20);n.affection=0;n.romance=false;n.mood=pick(['평온함','피곤함','긴장함','경계 중'])});state.inventory.push('천','나뭇가지');state.region='마을';state.dead=false;state.lastEncounter='';render();saveGame()};
+const oldAdvance=advance;
+advance=function(n=1){if(!state||state.dead)return;oldAdvance(n);const s=state.stats;s.건강=Math.max(0,s.건강-(s.허기===0?4*n:0)-(s.갈증===0?6*n:0)-(s.피로>=95?2*n:0));if(Math.random()<.035*n)s.감염=Math.min(100,(s.감염||0)+1);if((s.감염||0)>65)s.건강=Math.max(0,s.건강-2*n);if(s.건강<=0||s.감염>=100){state.dead=true;writeLog('생존을 이어 갈 수 없게 되었다. 이번 여정은 여기서 끝난다.');showDeath()}};
+function showDeath(){if($('deathOverlay'))return;const d=document.createElement('div');d.id='deathOverlay';d.className='dead-screen';d.innerHTML='<div class="panel"><div class="danger small">SURVIVAL FAILED</div><h1>이번 여정은 끝났다.</h1><p class="muted">DAY '+state.day+' · '+state.person.name+'</p><p>건강이나 감염 상태를 관리하지 못해 생존을 이어 갈 수 없게 되었다.</p><button class="primary" onclick="newRunAfterDeath()">새로운 생존자 만들기</button></div>';document.body.appendChild(d)}
+function newRunAfterDeath(){localStorage.removeItem('life-zombie-save');state=null;$('deathOverlay')?.remove();showCreate()}
+const oldMove=move;
+move=function(id){if(!state||state.dead)return;const before=state.place;oldMove(id);if(state.dead)return;const encounterChance=id===before?.08:.28;if(Math.random()<encounterChance)randomEncounter('이동');render();saveGame()};
+const oldAct=act;
+act=function(kind){if(!state||state.dead)return;oldAct(kind);if(state.dead)return;if(kind==='탐색'&&Math.random()<.48)randomEncounter('탐색');render();saveGame()};
+function randomEncounter(trigger){const choices=[
+()=>{const n=pick(state.npcs);writeLog('우연히 '+n.name+'을(를) 만났다. '+n.style);n.trust=Math.min(100,n.trust+3);state.lastEncounter=n.name+'과(와)의 우연한 만남';},
+()=>{const loot=pick(['생수','통조림','붕대','건전지','허브']);state.inventory.push(loot);writeLog('무너진 진열대 아래에서 '+loot+'을(를) 발견했다.');state.lastEncounter=loot+' 발견';},
+()=>{state.stats.피로=Math.min(100,state.stats.피로+12);writeLog('갑작스러운 소란에 놀라 서둘러 자리를 피했다. 피로가 쌓였다.');state.lastEncounter='불안한 소란';},
+()=>{state.stats.기분=Math.min(100,state.stats.기분+8);writeLog('누군가 남긴 짧은 쪽지를 발견했다. “어딘가에서 다시 만나요.”');state.lastEncounter='남겨진 쪽지';},
+()=>{state.stats.건강=Math.max(0,state.stats.건강-8);state.stats.감염=Math.min(100,(state.stats.감염||0)+5);writeLog('위험한 상황을 간신히 벗어났다. 몸에 작은 상처가 생겼다.');state.lastEncounter='위험한 조우';},
+()=>{const n=pick(state.npcs);writeLog(n.name+'이(가) 필요한 물자를 찾고 있다. 도와주면 신뢰를 얻을 수 있을 것 같다.');state.lastEncounter='주민의 부탁';}
+];pick(choices)();$('encounterBox').innerHTML='<div class="encounter"><b>⚑ 랜덤 인카운터 · '+trigger+'</b><div class="small">'+escapeHTML(state.lastEncounter)+'</div></div>'}
+function useItem(item){if(!state||state.dead)return;const i=state.inventory.indexOf(item);if(i<0)return;const effects={'생수':['갈증',42],'물병':['갈증',35],'통조림':['허기',35],'빵':['허기',25],'식량':['허기',40],'붕대':['건강',22],'진통제':['건강',12],'소독제':['감염',-18],'허브':['기분',8],'담요':['피로',10]};const e=effects[item];if(!e){writeLog(item+'은(는) 지금 사용할 수 있는 효과가 없다.');return}state.inventory.splice(i,1);state.stats[e[0]]=Math.max(0,Math.min(100,state.stats[e[0]]+e[1]));writeLog(item+'을(를) 사용했다. '+e[0]+' 상태가 변했다.');render();saveGame()}
+const recipes=[
+{name:'응급 붕대',needs:{'천':2,'허브':1},makes:'붕대',desc:'천 2 + 허브 1'},
+{name:'간이 정수 물',needs:{'생수':1,'허브':1},makes:'정수된 물',desc:'생수 1 + 허브 1'},
+{name:'수리 키트',needs:{'공구':1,'건전지':1},makes:'수리 키트',desc:'공구 1 + 건전지 1'},
+{name:'간이 침낭',needs:{'천':3,'담요':1},makes:'침낭',desc:'천 3 + 담요 1'}
+];
+function craft(index){if(!state||state.dead)return;const r=recipes[index];for(const [item,count] of Object.entries(r.needs)){if(state.inventory.filter(x=>x===item).length<count){$('toast').textContent='재료가 부족해. 필요한 재료: '+r.desc;return}}for(const [item,count] of Object.entries(r.needs)){for(let k=0;k<count;k++)state.inventory.splice(state.inventory.indexOf(item),1)}state.inventory.push(r.makes);writeLog(r.makes+' 제작을 완료했다.');render();saveGame()}
+function relationshipAction(action){if(!state||state.dead)return;const n=state.npcs.find(x=>x.place===state.place);if(!n){writeLog('이곳에는 함께할 주민이 없다.');render();return}if(action==='talk'){const line=n.personality==='경계심이 강한'?'“아직은 서로를 더 알아가야겠어요.”':n.personality==='낙천적인'?'“오늘은 어제보다 나을 거예요.”':n.personality==='호기심 많은'?'“바깥 지역에서 새로운 걸 봤나요?”':'“와 줘서 고마워요. 잠깐 이야기할까요?”';writeLog(n.name+'('+n.personality+'): '+line+' '+n.style);n.trust=Math.min(100,n.trust+6);n.affection=Math.min(100,n.affection+4)}
+if(action==='help'){if(state.inventory.includes('통조림')){state.inventory.splice(state.inventory.indexOf('통조림'),1);n.trust=Math.min(100,n.trust+14);n.affection=Math.min(100,n.affection+7);writeLog(n.name+'에게 통조림을 건넸다. '+n.name+'의 신뢰가 높아졌다.')}else writeLog('도움을 주려면 통조림이 필요하다.')}
+if(action==='date'){if(n.affection<35||n.trust<35){writeLog(n.name+'은(는) 아직 둘만의 시간을 보내기에는 이르다고 생각한다.');}else{n.romance=true;n.affection=Math.min(100,n.affection+10);writeLog(n.name+'과(와) 함께 마을의 조용한 길을 걸었다. 서로에 대해 조금 더 알게 되었다.')}}advance(1);render();saveGame()}
+const oldRender=render;
+render=function(){oldRender();if(!state)return;
+$('map').style.display='none';
+const regions=[...new Set(places.map(p=>regionOf(p.id)))];const activeRegion=regionOf(state.place);
+$('regionNav').innerHTML=regions.map(r=>'<button class="'+(r===activeRegion?'primary':'')+'" onclick="showRegion(\''+r+'\')">'+r+'</button>').join('');
+drawAtlas(activeRegion);
+$('itemActions').innerHTML=state.inventory.length?state.inventory.map((item,i)=>'<div class="item-row"><span>'+escapeHTML(item)+'</span><button onclick="useItem(\''+item.replace(/'/g,'')+'\')">사용</button></div>').join(''):'<span class="muted">가방이 비어 있다.</span>';
+$('craftActions').innerHTML=recipes.map((r,i)=>'<div class="item-row"><div><b>'+r.makes+'</b><div class="small muted">'+r.desc+'</div></div><button onclick="craft('+i+')">제작</button></div>').join('');
+const here=state.npcs.find(n=>n.place===state.place);
+$('relationshipActions').innerHTML=here?'<b>'+escapeHTML(here.name)+'</b> · '+here.personality+'<div class="small muted">'+here.style+' 좋아하는 것: '+here.likes+' / 피하는 것: '+here.dislikes+'</div><div class="small">신뢰 '+here.trust+' · 호감 '+here.affection+' · '+(here.romance?'서로 특별한 사이':'관계 형성 중')+'</div><div class="actions"><button onclick="relationshipAction(\'talk\')">대화</button><button onclick="relationshipAction(\'help\')">도와주기</button><button onclick="relationshipAction(\'date\')">함께 산책하기</button></div>':'<span class="muted">현재 위치에는 만날 주민이 없다.</span>';
+$('survivalInfo').innerHTML='건강이 0이 되거나 감염이 100에 도달하면 여정이 끝난다.<br>허기와 갈증이 0인 상태가 이어지면 건강이 감소한다.<br>감염은 위험한 조우에서 증가할 수 있으며 소독제로 낮출 수 있다.';
+if(state.dead)showDeath();
+};
+function showRegion(region){const first=places.find(p=>regionOf(p.id)===region);if(first)drawAtlas(region)}
+function drawAtlas(region){const visible=places.filter(p=>regionOf(p.id)===region);const coords={square:[150,125],store:[265,95],clinic:[360,145],school:[250,220],police:[90,230],park:[400,250],shelter:[170,300],house:[330,320],workshop:[470,180],forest:[120,80],mall:[280,70],hospital:[400,130],base:[470,270],gas:[250,340]};const nodes=visible.map(p=>{const [x,y]=coords[p.id]||[250,180];return '<g onclick="move(\''+p.id+'\')" style="cursor:pointer"><circle class="pin '+(p.id===state.place?'active':'')+'" cx="'+x+'" cy="'+y+'" r="9"/><text x="'+(x+12)+'" y="'+(y+4)+'">'+p.name+'</text></g>'}).join('');$('atlasImage').innerHTML='<svg viewBox="0 0 560 390" role="img" aria-label="'+region+' 지역 지도"><path class="water" d="M0 0H560V390H0Z"/><path class="land" d="M35 35 Q130 5 220 45 T500 35 L530 340 Q420 390 300 350 T35 355Z"/><path class="road" d="M65 190 Q150 120 260 175 T490 155 M150 60 Q210 170 260 340 M390 60 Q350 190 430 320"/><path class="water" d="M0 280 Q100 230 180 280 T350 285 T560 260 V390 H0Z"/>'+nodes+'</svg>'}
+const oldSave=saveGame;
+saveGame=function(){if(state){oldSave();localStorage.setItem('life-zombie-save',JSON.stringify(state))}};
+const oldLoad=loadGame;
+loadGame=function(){oldLoad();if(state){state.stats.감염=state.stats.감염||0;state.npcs.forEach(n=>{n.trust=n.trust??20;n.affection=n.affection??0;n.likes=n.likes||'편안한 대화';n.dislikes=n.dislikes||'무례한 태도';n.style=n.style||'주변을 살핀다.';n.romance=!!n.romance});state.dead=!!state.dead;if(state.dead)showDeath();render()}};
+
 </script></body></html>
