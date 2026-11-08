@@ -22,6 +22,27 @@
 .item-row button{padding:5px 8px;font-size:11px}.encounter{border:1px solid #806c42;background:#302c20;border-radius:10px;padding:12px;margin-top:12px}
 .dead-screen{position:fixed;inset:0;background:#080c0aee;z-index:20;display:grid;place-items:center;padding:20px;text-align:center}.dead-screen .panel{max-width:520px}
 @media(max-width:760px){.system-grid{grid-template-columns:1fr}}
+
+@font-face{font-family:Dalmoori;src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2102-01@1.0/dalmoori.woff') format('woff');font-display:swap}
+body,button,input,select,textarea,h1,h2,h3,.brand,.sectiontitle,.tag,.pill{font-family:Dalmoori,monospace!important}
+body{background:linear-gradient(#111923dd,#10151af2),radial-gradient(ellipse at 50% 0%,#34465b,#10151a 75%)}
+#portrait{width:180px;height:204px;min-height:0;padding:5px;border:3px ridge #59616e;border-radius:5px;background:#20232a;overflow:hidden}
+.pixel-portrait{width:100%;height:100%;display:block;image-rendering:pixelated;shape-rendering:crispEdges}
+.npc-card{display:grid;grid-template-columns:62px 1fr auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.npc-card .npc-face{width:62px;height:72px;border:2px ridge #566170;background:#242a32}
+.event-card{border:1px solid #8c7955;background:linear-gradient(145deg,#2a2c2d,#20262b);padding:16px;border-radius:8px;margin:12px 0}
+.event-card h3{margin:0 0 8px;color:#ead4a5}.event-choices{display:flex;gap:7px;flex-wrap:wrap}
+.event-choices button{flex:1;min-width:145px}
+#atlasImage{border:1px solid #596675;border-radius:7px;overflow:hidden;background:#1c2930}
+.seoul-map{width:100%;height:auto;display:block;image-rendering:pixelated}
+.seoul-map text{font-family:Dalmoori,monospace;fill:#f0ead9;stroke:#20262c;stroke-width:3px;paint-order:stroke;font-size:12px}
+.seoul-map .map-pin{fill:#e6c47d;stroke:#18212a;stroke-width:3;cursor:pointer}
+.seoul-map .map-pin.active{fill:#dc8172;stroke:#fff}
+.seoul-map .district{fill:#425344;stroke:#71826e;stroke-width:2}
+.seoul-map .road{fill:none;stroke:#b5a88d;stroke-width:7;stroke-dasharray:2 3}
+.seoul-map .river{fill:none;stroke:#397b91;stroke-width:35}
+#npcs{max-height:380px;overflow:auto}
+@media(max-width:650px){#portrait{width:150px;height:174px}.npc-card{grid-template-columns:54px 1fr}.npc-card .npc-face{width:54px;height:64px}.event-choices button{min-width:100%}}
 </style>
 </head>
 <body><div class="wrap">
@@ -369,4 +390,161 @@ move=function(id){
  if(!state.dead&&state.region!=='안전 구역'&&Math.random()<.38)randomEncounter('탐험 중');
  render();saveGame();showRegion(state.region);
 };
+
+/* LIFE 0.4 — Seoul 2030 and discovery systems */
+const seoulPlaceData={
+ square:['청량리 안전구역 광장','청량리역 일대에 세워진 임시 안전구역의 중심 광장. 방호벽 너머로 고층 주거동과 꺼진 전광판이 보인다.','안전 구역'],
+ store:['전농동 편의점','전농동 골목의 작은 편의점. 자동문은 반쯤 열린 채 멈췄고 바닥에는 배송 상자가 쌓여 있다.','서울 도심'],
+ clinic:['동대문 임시의료소','옛 의원 건물을 개조한 의료소. 비상 발전기가 낮게 울리고 접수대 위에는 분류표가 놓여 있다.','안전 구역'],
+ school:['서울시립대 캠퍼스','담장 일부가 무너진 캠퍼스. 잔디밭에는 임시 텐트 자국이 남았고 중앙도서관 창문은 어둡다.','서울 도심'],
+ police:['동대문 통합상황실','구 파출소와 행정시설을 연결한 통합상황실. 벽면 모니터에는 구역별 전력 상태가 표시된다.','안전 구역'],
+ park:['중랑천 둔치','중랑천 산책로. 자전거 도로 위로 잡초가 올라왔고 멀리 내부순환로의 차량들이 보인다.','하천·녹지'],
+ shelter:['청량리 제3대피소','청량리역 인근 공공시설을 개조한 대피소. 접이식 침상과 배급표가 정돈되어 있다.','안전 구역'],
+ house:['전농동 주택가','낮은 빌라와 오래된 상가가 이어지는 주택가. 창문마다 커튼이 쳐져 있고 골목은 유난히 조용하다.','서울 도심'],
+ workshop:['답십리 정비창','차량 정비소를 보급 장비 수리 공간으로 바꾼 곳. 벽에는 손으로 그린 부품 목록이 붙어 있다.','안전 구역'],
+ forest:['배봉산 숲길','배봉산 산책로. 나무 사이로 동대문구 아파트 단지가 보이고 등산 안내판이 기울어져 있다.','하천·녹지'],
+ mall:['청량리 민자역사','셔터가 내려간 역 상업시설. 에스컬레이터는 멈췄고 천장 유리 사이로 희미한 빛이 스민다.','서울 도심'],
+ hospital:['서울의료원 분원','임시 폐쇄된 의료시설. 복도 비상등만 켜져 있고 안내 데스크에는 봉인된 상자가 남아 있다.','서울 도심'],
+ base:['성수 임시물류기지','성수동 물류창고를 개조한 임시 보급 거점. 외벽에는 구호 물자 분류 기호가 남아 있다.','서울 도심'],
+ gas:['동부간선도로 주유소','동부간선도로 진입로 옆 주유소. 차단봉이 내려와 있고 도로 위로 먼지가 쌓여 있다.','하천·녹지']
+};
+places.forEach(p=>{const d=seoulPlaceData[p.id];if(d){p.name=d[0];p.desc=d[1];p.region=d[2]}});
+extraPlaces.forEach(p=>{const d=seoulPlaceData[p.id];if(d){p.name=d[0];p.desc=d[1];p.region=d[2]}});
+function pixelPortrait(seed,kind){
+ seed=seed||{};const hairName=seed.hair||'짙은 갈색 단발';
+ const hair=seed.hairColor||(/금발|밝은/.test(hairName)?'#c58d50':/붉|적갈/.test(hairName)?'#a84f43':/갈색|밤색/.test(hairName)?'#704c3d':'#332b2b');
+ const skin=seed.skinColor||'#d4a184',shade='#996c60',coat=seed.coatColor||'#52645c',eye=seed.eyeColor||'#454e58';
+ const rows=40,cols=32,px=2,g=Array(rows*cols).fill('');
+ const r=(x,y,w,h,c)=>{for(let yy=y;yy<y+h;yy++)for(let xx=x;xx<x+w;xx++)if(xx>=0&&xx<cols&&yy>=0&&yy<rows)g[yy*cols+xx]=c};
+ r(2,31,28,9,'#171c22');r(4,30,24,10,coat);r(7,32,18,8,shade);r(11,27,10,7,skin);
+ const hood=seed.hood!==undefined?seed.hood:/후드/.test(seed.outfit||'');
+ if(hood){r(5,2,22,4,'#24282c');r(3,5,4,19,'#292d32');r(25,5,4,19,'#292d32');r(4,22,5,8,'#30353b');r(23,22,5,8,'#30353b');r(6,3,20,2,'#65625c')}
+ r(7,5,18,19,hair);r(5,9,3,14,hair);r(24,9,3,14,hair);r(9,4,14,3,hair);
+ r(8,7,3,4,seed.hairHi||'#8a6552');r(18,6,5,3,seed.hairHi||'#8a6552');
+ r(9,9,14,17,skin);r(8,13,2,9,skin);r(22,13,2,9,skin);
+ r(9,22,3,4,shade);r(20,22,3,4,shade);r(11,24,10,3,skin);
+ r(8,7,4,7,hair);r(12,6,3,6,hair);r(16,7,3,5,hair);r(20,7,4,7,hair);
+ r(10,8,2,2,seed.hairHi||'#8a6552');r(17,9,2,2,seed.hairHi||'#8a6552');
+ if(/긴|웨이브|묶/.test(hairName)){r(6,15,3,13,hair);r(23,14,3,14,hair);r(7,25,3,4,seed.hairHi||'#8a6552')}
+ if(/묶|포니/.test(hairName)){r(24,5,5,7,hair);r(27,8,3,5,hair)}
+ r(10,15,4,1,hair);r(18,15,4,1,hair);r(10,17,4,2,'#e1d9cb');r(18,17,4,2,'#e1d9cb');
+ r(11,17,2,2,eye);r(19,17,2,2,eye);r(12,17,1,1,'#171b20');r(20,17,1,1,'#171b20');
+ r(15,18,2,4,shade);r(14,22,4,1,'#754c49');r(14,24,4,1,'#754c49');
+ r(9,20,3,2,'#bd796d');r(20,20,3,2,'#bd796d');
+ r(12,31,3,5,'#c4b6a0');r(17,31,3,5,'#c4b6a0');r(7,34,3,2,'#7b8980');r(22,34,3,2,'#7b8980');
+ if(seed.glasses){r(9,16,6,1,'#7c9296');r(9,19,6,1,'#7c9296');r(9,16,1,4,'#7c9296');r(14,16,1,4,'#7c9296');r(17,16,6,1,'#7c9296');r(17,19,6,1,'#7c9296');r(17,16,1,4,'#7c9296');r(22,16,1,4,'#7c9296')}
+ if(seed.scar)r(20,22,3,1,'#9c5f58');
+ if(seed.mask){r(9,20,14,5,'#68716d');r(10,20,12,1,'#a5aaa0')}
+ let cells='';g.forEach((c,i)=>{if(c)cells+='<rect x="'+((i%cols)*px)+'" y="'+(Math.floor(i/cols)*px)+'" width="2" height="2" fill="'+c+'"/>'});
+ return '<svg class="pixel-portrait" viewBox="0 0 64 80" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="80" fill="#262a30"/>'+cells+'</svg>';
+}
+function playerPortrait(){const p=state?.person||{};return pixelPortrait({hair:p.hair,outfit:p.outfit,eyeColor:p.eyes,hood:/후드/.test(p.outfit||''),hairColor:/금발/.test(p.hair||'')?'#c58d50':/갈색|밤색/.test(p.hair||'')?'#704c3d':'#332b2b'})}
+function npcFace(n){return pixelPortrait(n)}
+makeDetailedNPCs=function(){return [
+{id:'seojin',name:'윤서진',age:31,job:'임시의료소 의무관',place:'clinic',personality:'책임감 강한 현실주의자',desc:'턱선에 닿는 검은 단발, 눈 밑의 옅은 그늘. 소매를 걷은 짙은 청록색 의료복과 낡은 손목시계를 착용했다.',hair:'짧은 검은 단발',hairColor:'#292b31',coatColor:'#4b6965',trust:22,affection:0,met:false,eventDone:false},
+{id:'taeo',name:'강태오',age:28,job:'정비 담당',place:'workshop',personality:'무뚝뚝하지만 약속을 지키는 의리파',desc:'짙은 갈색 머리를 낮게 묶었고 왼쪽 뺨에 작은 흉터가 있다. 기름때 묻은 작업 재킷에 공구 벨트를 둘렀다.',hair:'뒤로 묶은 짙은 갈색 머리',hairColor:'#51362e',coatColor:'#596052',scar:true,trust:18,affection:0,met:false,eventDone:false},
+{id:'narin',name:'최나린',age:23,job:'기록관 겸 정찰 보조',place:'shelter',personality:'호기심 많고 관찰력이 뛰어난 기록가',desc:'어깨까지 오는 밤색 웨이브 머리와 둥근 안경. 목에 작은 쌍안경을 걸고 모서리가 닳은 수첩을 들고 있다.',hair:'밤색 웨이브 단발',hairColor:'#80513d',coatColor:'#667b79',glasses:true,trust:20,affection:0,met:false,eventDone:false},
+{id:'dohyun',name:'박도현',age:36,job:'안전구역 경비 책임자',place:'police',personality:'규칙을 중시하는 엄격한 경계 담당자',desc:'짧게 정돈한 흑발과 굳은 눈매. 낡은 방호 조끼 위에 청색 구역 완장을 착용했다.',hair:'짧은 검은 머리',hairColor:'#25272b',coatColor:'#4a5868',trust:12,affection:0,met:false,eventDone:false},
+{id:'haeun',name:'이하은',age:26,job:'식량 배급 담당',place:'square',personality:'사교적이고 낙천적이며 눈치가 빠른',desc:'높게 묶은 검은 포니테일과 밝은 표정. 군용 조끼 주머니마다 배급 메모와 연필이 꽂혀 있다.',hair:'높게 묶은 검은 머리',hairColor:'#342a2a',coatColor:'#6c7251',trust:28,affection:4,met:false,eventDone:false}
+]};
+const npcEventText={
+seojin:['의료소의 호출','접수대 안쪽에서 윤서진이 진료 기록을 정리하다 고개를 든다. “새로 온 분이죠? 의료소 물품 목록이 맞지 않아요. 잠깐 확인을 도와줄 수 있나요?”'],
+taeo:['멈춰 선 발전기','정비창 안쪽에서 금속이 부딪히는 소리가 난다. 강태오가 발전기 옆에서 말한다. “전력 공급이 불안정해. 부품 목록 좀 읽어줄래?”'],
+narin:['찢어진 서울 지도','대피소 게시판 앞에서 최나린이 찢어진 서울 지도를 펴고 있다. “중랑천 쪽 기록이 끊겼어요. 표시가 맞는지 같이 봐줄래요?”'],
+dohyun:['안전구역 출입 확인','통합상황실 입구에서 박도현이 한 걸음 다가온다. “처음 보는 얼굴이군요. 출입 기록을 남기고 구역 규칙을 안내받으세요.”'],
+haeun:['배급표의 빈칸','광장 배급대에서 이하은이 빈 배급표를 들여다본다. “오늘 배급 명단이 한 줄 비었어요. 누구 몫인지 같이 확인해 줄래요?”']
+};
+function startNpcMeeting(n){
+ if(!n||n.met||n.eventDone)return;n.met=true;n.meetingPending=true;const e=npcEventText[n.id];
+ const choices=[['함께 확인한다','assist'],['상황부터 질문한다','ask'],['오늘은 어렵다고 말한다','decline']];
+ $('encounterBox').innerHTML='<div class="event-card"><div class="tag">새로운 생존자 · 첫 만남</div><h3>'+e[0]+'</h3><div class="npc-card"><div class="npc-face">'+npcFace(n)+'</div><div><b>'+n.name+'</b><div class="small muted">'+n.age+'세 · '+n.job+'</div><div class="small">'+n.personality+'</div></div></div><p>'+e[1]+'</p><div class="event-choices">'+choices.map(c=>'<button onclick="resolveNpcMeeting(\''+n.id+'\',\''+c[1]+'\')">'+c[0]+'</button>').join('')+'</div></div>';
+ writeLog(n.name+'과(와) 처음 만났다. '+e[0]);
+}
+function resolveNpcMeeting(id,choice){
+ const n=state?.npcs.find(x=>x.id===id);if(!n||n.eventDone)return;n.eventDone=true;n.meetingPending=false;
+ if(choice==='assist'){n.trust+=12;n.affection+=7;state.stats.카르마=Math.min(100,(state.stats.카르마||50)+4);writeLog(n.name+'의 부탁을 도왔다. 신뢰와 호감, 카르마가 올랐다.')}
+ if(choice==='ask'){n.trust+=7;n.affection+=4;writeLog(n.name+'에게 상황을 물어보고 필요한 정보를 들었다.')}
+ if(choice==='decline'){n.trust=Math.max(0,n.trust-2);writeLog(n.name+'에게 지금은 어렵다고 말했다. 첫인상은 조금 어색하게 남았다.')}
+ advanceMinutes(choice==='assist'?25:choice==='ask'?15:5);
+ $('encounterBox').innerHTML='<div class="event-card"><b>'+n.name+'과(와)의 첫 만남</b><p>'+(choice==='assist'?'함께 일을 마치며 서로의 이름을 기억하게 되었다.':choice==='ask'?'짧은 대화를 통해 서로에 대해 조금 알게 되었다.':'인사를 나누고 각자의 일로 돌아갔다.')+'</p><button onclick="document.getElementById(\'encounterBox\').innerHTML=\'\';render();saveGame()">계속</button></div>';
+ render();saveGame();
+}
+function advanceMinutes(minutes){
+ if(!state||state.dead)return;let total=(state.hour||0)*60+(state.minute||0)+minutes;
+ while(total>=1440){total-=1440;state.day++;writeLog('서울의 밤이 지나고 새벽이 밝아온다. 안전구역 스피커에서 일일 안내 방송이 흘러나온다.')}
+ state.hour=Math.floor(total/60);state.minute=total%60;const hours=minutes/60,s=state.stats;
+ s.허기=Math.max(0,s.허기-hours*1.4);s.갈증=Math.max(0,s.갈증-hours*1.8);s.피로=Math.min(100,s.피로+hours*1.2);s.스트레스=Math.min(100,(s.스트레스||0)+hours*.45);
+ if(s.허기<=0)s.건강=Math.max(0,s.건강-hours*3);if(s.갈증<=0)s.건강=Math.max(0,s.건강-hours*5);if(s.피로>=98)s.건강=Math.max(0,s.건강-hours);
+ if(s.감염>=60)s.건강=Math.max(0,s.건강-hours*.8);
+ if(s.건강<=0||s.감염>=100){state.dead=true;writeLog('생존 한계에 도달했다. 이번 여정은 끝났다.');showDeath()}
+}
+advance=function(n=1){advanceMinutes(n*60)};
+act=function(kind){
+ if(!state||state.dead)return;const p=places.find(x=>x.id===state.place);
+ if(kind==='탐색'){const found=Math.random()<.72?pick(p.loot):null;if(found){state.inventory.push(found);writeLog(p.name+'을(를) 살펴보다 '+found+'을(를) 발견했다.')}else writeLog(p.name+' 주변을 살폈지만 쓸 만한 물건을 찾지 못했다.');advanceMinutes(45);if(Math.random()<.22&&state.region!=='안전 구역')randomEncounter('탐색 중')}
+ else if(kind==='휴식'){state.stats.피로=Math.max(0,state.stats.피로-18);state.stats.기분=Math.min(100,state.stats.기분+4);writeLog('안전한 곳에 앉아 숨을 고른다.');advanceMinutes(30)}
+ else if(kind==='식사'){const i=state.inventory.findIndex(x=>['통조림','빵','식량'].includes(x));if(i<0)writeLog('먹을 것이 없다.');else{const food=state.inventory.splice(i,1)[0];state.stats.허기=Math.min(100,state.stats.허기+35);writeLog(food+'을(를) 먹었다.')}advanceMinutes(15)}
+ else if(kind==='물'){const i=state.inventory.indexOf('생수');if(i<0)writeLog('마실 물이 없다.');else{state.inventory.splice(i,1);state.stats.갈증=Math.min(100,state.stats.갈증+42);writeLog('물을 마셨다.')}advanceMinutes(5)}
+ else if(kind==='정리'){writeLog('가방의 물품을 다시 정리했다.');advanceMinutes(10)}
+ render();saveGame();
+};
+const travelMinutes={square:0,store:15,clinic:12,school:25,police:10,park:30,shelter:8,house:12,workshop:18,forest:35,mall:25,hospital:32,base:45,gas:38};
+move=function(id){
+ if(!state||state.dead||state.combat)return;const p=places.find(x=>x.id===id);if(!p)return;
+ state.place=id;state.region=p.region||'서울 도심';if(!state.visited.includes(id))state.visited.push(id);
+ const mins=id===state.place?0:(travelMinutes[id]||20);if(mins)advanceMinutes(mins);
+ writeLog(p.name+'에 도착했다. '+p.desc);
+ render();showRegion(state.region);
+ const n=state.npcs.find(x=>x.place===id);if(n&&!n.met)startNpcMeeting(n);
+ else if(state.region!=='안전 구역'&&Math.random()<.28)randomEncounter('이동 중');
+ render();saveGame();
+};
+talk=function(){if(!state||state.dead)return;const n=state.npcs.find(x=>x.place===state.place&&x.met);if(!n){writeLog('이곳에는 아직 대화를 나눌 주민이 보이지 않는다.');advanceMinutes(5)}else relationshipAction('talk');render();saveGame()};
+trade=function(){if(!state||state.dead)return;const n=state.npcs.find(x=>x.place===state.place&&x.met);if(!n){writeLog('물자를 교환할 주민이 없다.');advanceMinutes(5)}else if(state.inventory.includes('통조림')){state.inventory.splice(state.inventory.indexOf('통조림'),1);state.inventory.push(pick(['붕대','건전지','빵','허브']));n.trust+=3;writeLog(n.name+'과(와) 물자를 교환했다.');advanceMinutes(20)}else{writeLog('교환할 물자가 부족하다.');advanceMinutes(5)}render();saveGame()};
+sleep=function(){if(!state||state.dead)return;state.stats.피로=Math.max(0,state.stats.피로-65);state.stats.기분=Math.min(100,state.stats.기분+8);state.stats.허기=Math.max(0,state.stats.허기-12);state.stats.갈증=Math.max(0,state.stats.갈증-15);writeLog('대피소에서 잠을 청했다. 여덟 시간이 흘렀다.');advanceMinutes(480);render();saveGame()};
+relationshipAction=function(action){
+ if(!state||state.dead)return;const n=state.npcs.find(x=>x.place===state.place&&x.met);if(!n){writeLog('아직 알고 지내는 주민이 없다.');render();return}
+ if(action==='talk'){const lines={seojin:'“기록은 거짓말을 하지 않아요. 적어도 우리가 제대로 남긴다면요.”',taeo:'“말보다 약속을 지키는 쪽이 편해. 다음에도 그렇게 해.”',narin:'“서울 지도를 계속 고치고 있어요. 아직 모르는 길이 너무 많거든요.”',dohyun:'“규칙은 모두를 지키기 위해 있는 겁니다.”',haeun:'“오늘은 따뜻한 물이 조금 남았어요. 이런 날도 있어야죠.”'};writeLog(n.name+': '+(lines[n.id]||'“오늘은 어떻게 지냈어요?”'));n.trust=Math.min(100,n.trust+5);n.affection=Math.min(100,n.affection+3);advanceMinutes(20)}
+ else if(action==='help'){if(state.inventory.includes('통조림')){state.inventory.splice(state.inventory.indexOf('통조림'),1);n.trust+=10;n.affection+=5;state.stats.카르마=Math.min(100,(state.stats.카르마||50)+4);writeLog(n.name+'에게 식량을 나눠 주었다.');advanceMinutes(15)}else{writeLog('나눠 줄 식량이 없다.');advanceMinutes(5)}}
+ else if(action==='date'){if(n.trust<35||n.affection<30)writeLog(n.name+'은(는) 아직 둘만의 시간을 보내기에는 이르다고 생각한다.');else{n.romance=true;n.affection=Math.min(100,n.affection+8);writeLog(n.name+'과(와) 안전구역 안뜰을 걸으며 서로의 이야기를 나눴다.');advanceMinutes(60)}}
+ render();saveGame();
+};
+const useItemBefore04=useItem;
+useItem=function(item){if(!state||state.dead)return;const before=state.inventory.length;useItemBefore04(item);if(state.inventory.length<before){advanceMinutes(item==='생수'?5:10);render();saveGame()}};
+const craftBefore04=craft;
+craft=function(i){if(!state||state.dead)return;const before=state.inventory.length;craftBefore04(i);if(state.inventory.length>before){advanceMinutes(i===3?50:30);render();saveGame()}};
+const renderBefore04=render;
+render=function(){
+ if(!state)return;renderBefore04();$('portrait').innerHTML=playerPortrait();
+ $('pmeta').textContent=state.person.age+'세 · '+state.person.gender+' · '+state.person.hair;
+ $('date').textContent='2030년 · '+state.day+'일차 · '+String(state.hour).padStart(2,'0')+':'+String(state.minute||0).padStart(2,'0');
+ $('placeTitle').textContent=places.find(p=>p.id===state.place)?.name||'서울';
+ const known=state.npcs.filter(n=>n.met);
+ $('npcs').innerHTML=known.length?known.map(n=>'<div class="npc-card"><div class="npc-face">'+npcFace(n)+'</div><div><b>'+escapeHTML(n.name)+'</b><div class="small muted">'+n.age+'세 · '+escapeHTML(n.job)+'</div><div class="small">'+escapeHTML(n.personality)+'</div><div class="small muted">신뢰 '+n.trust+' · 호감 '+n.affection+'</div></div><span class="tag">'+(n.romance?'특별한 사이':'알고 지내는 사이')+'</span></div>').join(''):'<div class="small muted">아직 만난 생존자가 없다. 서울 곳곳을 탐색하며 사람들을 만나 보자.</div>';
+ const here=state.npcs.find(n=>n.place===state.place&&n.met);
+ $('relationshipActions').innerHTML=here?'<div class="npc-card"><div class="npc-face">'+npcFace(here)+'</div><div><b>'+escapeHTML(here.name)+'</b><div class="small">'+escapeHTML(here.desc)+'</div></div></div><div class="small muted">성격: '+escapeHTML(here.personality)+'<br>좋아하는 것: '+escapeHTML(here.likes||'협력')+'<br>불편해하는 것: '+escapeHTML(here.dislikes||'무례한 태도')+'<br>신뢰 '+here.trust+' · 호감 '+here.affection+'</div><div class="actions"><button onclick="relationshipAction(\'talk\')">대화하기</button><button onclick="relationshipAction(\'help\')">도움 주기</button><button onclick="relationshipAction(\'date\')">함께 산책하기</button></div>':'<span class="muted">이곳에서 아직 만난 주민이 없다.</span>';
+ $('survivalInfo').innerHTML='행동에 따라 시간이 분 단위로 흐른다.<br>이동은 거리와 지역에 따라 8~45분, 탐색 45분, 대화 20분, 식사 15분, 수면 8시간이 소요된다.<br>2030년 서울 동대문구 일대가 주요 무대다.';
+};
+drawAtlas=function(region){
+ const pts={square:[215,190],shelter:[250,220],clinic:[185,245],police:[280,185],workshop:[315,245],store:[165,155],school:[90,230],house:[135,190],park:[410,235],forest:[450,100],mall:[240,145],hospital:[325,130],base:[455,290],gas:[490,220]};
+ const visible=places.filter(p=>(p.region||'서울 도심')===region);
+ const pins=visible.map(p=>{const q=pts[p.id]||[280,180];return '<g onclick="move(\''+p.id+'\')"><circle class="map-pin '+(p.id===state.place?'active':'')+'" cx="'+q[0]+'" cy="'+q[1]+'" r="8"/><text x="'+(q[0]+11)+'" y="'+(q[1]+4)+'">'+p.name+'</text></g>'}).join('');
+ $('atlasImage').innerHTML='<svg class="seoul-map" viewBox="0 0 560 350" role="img" aria-label="2030년 서울 동대문구 생존 지도"><rect width="560" height="350" fill="#26343a"/><path class="district" d="M15 25 L190 18 L245 75 L225 165 L120 190 L25 150Z"/><path class="district" d="M250 18 L535 25 L540 180 L435 205 L335 145 L245 80Z"/><path class="district" d="M20 205 L180 180 L280 210 L290 330 L20 330Z"/><path class="district" d="M310 205 L540 185 L540 330 L300 330Z"/><path class="river" d="M-10 295 Q100 255 190 285 T370 275 T570 240"/><path class="road" d="M25 180 Q130 135 230 185 T520 160 M180 15 Q215 130 260 330 M350 20 Q325 150 365 330"/><path d="M220 90 L245 115 L275 90 L290 120 L265 145 L235 135Z" fill="#6b6a54" stroke="#b6a57c" stroke-width="2"/><path d="M390 25 Q430 0 470 35 L455 75 L400 70Z" fill="#435b43" stroke="#819276" stroke-width="2"/><g fill="#667b65" opacity=".7"><rect x="35" y="45" width="30" height="22"/><rect x="80" y="35" width="35" height="27"/><rect x="125" y="72" width="28" height="20"/><rect x="350" y="55" width="30" height="22"/><rect x="475" y="90" width="38" height="24"/><rect x="40" y="245" width="35" height="20"/><rect x="100" y="285" width="40" height="20"/><rect x="340" y="225" width="30" height="24"/></g><g fill="#e2c58b"><text x="22" y="18">2030 SEOUL</text><text x="22" y="340">중랑천</text><text x="397" y="18">배봉산</text><text x="205" y="80">청량리역</text></g>'+pins+'</svg>';
+};
+showRegion=function(region){
+ const regions=['안전 구역','서울 도심','하천·녹지'];
+ $('regionNav').innerHTML=regions.map(r=>'<button class="'+(r===region?'primary':'')+'" onclick="showRegion(\''+r+'\')">'+r+'</button>').join('');
+ drawAtlas(region);$('regionHint').textContent=region+' · 2030년 서울 동부권. 지도 위의 지점을 눌러 이동할 수 있다.';
+};
+const beginGameBefore04=beginGame;
+beginGame=function(){
+ beginGameBefore04();if(!state)return;
+ state.day=1;state.hour=9;state.minute=0;state.place='square';state.region='안전 구역';
+ state.npcs=makeDetailedNPCs();state.stats.카르마=50;state.stats.건강=100;state.stats.감염=0;state.stats.스트레스=10;state.stats.트라우마=0;state.dead=false;state.combat=null;
+ writeLog('2030년 서울 동대문구. 청량리 제3안전구역에서 새로운 하루가 시작된다.');
+ render();show('game');showRegion('안전 구역');const first=state.npcs.find(n=>n.place==='square');if(first)startNpcMeeting(first);saveGame();
+};
+const loadGameBefore04=loadGame;
+loadGame=function(){loadGameBefore04();if(!state)return;state.minute=state.minute||0;state.npcs=(state.npcs||[]).map(n=>({...n,met:!!n.met,eventDone:!!n.eventDone}));state.region=places.find(p=>p.id===state.place)?.region||'안전 구역';render();showRegion(state.region)};
+
 </script></body></html>
