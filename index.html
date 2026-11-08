@@ -1,580 +1,182 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#101713">
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LIFE — After the Last Day</title>
 <style>
-:root{--bg:#101713;--panel:#19231d;--panel2:#202d25;--line:#34463a;--text:#e8eee7;--muted:#9eafa1;--green:#a8c99c;--accent:#d7b879;--red:#c97970}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0%,#24352a 0,#101713 42%);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Noto Sans KR",sans-serif}button,input,select,textarea{font:inherit}button{border:1px solid var(--line);background:#28372d;color:var(--text);padding:10px 13px;border-radius:9px;cursor:pointer;transition:.15s}button:hover{border-color:var(--green);background:#34483a}button:disabled{opacity:.35;cursor:not-allowed}.wrap{max-width:1180px;margin:auto;padding:22px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:18px}.brand{font-size:22px;letter-spacing:4px;font-weight:800}.brand small{display:block;font-size:10px;letter-spacing:2px;color:var(--muted);font-weight:500}.pill{border:1px solid var(--line);padding:6px 10px;border-radius:30px;color:var(--muted);font-size:12px}.screen{display:none}.screen.active{display:block}.panel{background:linear-gradient(145deg,#1b2820,#151e19);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 12px 35px #0003}.intro{max-width:760px;margin:8vh auto;text-align:center;padding:35px}.intro h1{font-size:clamp(32px,6vw,58px);line-height:1.1;letter-spacing:-2px}.intro p{color:var(--muted);max-width:580px;margin:18px auto 26px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:12px;color:var(--muted)}input,select,textarea{width:100%;padding:10px;background:#111a14;border:1px solid var(--line);border-radius:8px;color:var(--text)}.wide{grid-column:1/-1}.muted{color:var(--muted)}.small{font-size:12px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.primary{background:#526c51;border-color:#789477}.gold{color:var(--accent)}.gamegrid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(260px,.85fr);gap:14px}.map{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:14px}.place{min-height:92px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;background:#202d25}.place strong{font-size:14px}.place span{font-size:11px;color:var(--muted)}.place.current{border-color:var(--accent);background:#3a3829}.barrow{display:grid;grid-template-columns:62px 1fr 32px;gap:8px;align-items:center;margin:9px 0;font-size:12px}.bar{height:8px;background:#0d140f;border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:var(--green);border-radius:9px}.log{height:320px;overflow:auto;background:#101812;border:1px solid var(--line);border-radius:9px;padding:13px;font-size:13px}.entry{padding:8px 0;border-bottom:1px solid #29372d}.entry time{color:var(--accent);font-size:11px;margin-right:7px}.npc{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.tag{font-size:11px;color:var(--accent)}.sectiontitle{display:flex;justify-content:space-between;align-items:center;margin:0 0 10px}.portrait{width:92px;height:112px;border:1px solid var(--line);border-radius:10px;background:#29372d;display:grid;place-items:center;font-size:42px}.profile{display:flex;gap:13px;align-items:center}.toast{color:var(--green);min-height:22px;font-size:12px}.danger{color:var(--red)}@media(max-width:760px){.wrap{padding:12px}.gamegrid,.grid2{grid-template-columns:1fr}.map{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:1fr}.wide{grid-column:auto}.intro{margin:4vh auto;padding:22px}.top{align-items:flex-start}}
-
-.pixel-editor{background:#111a14;border:1px solid var(--line);border-radius:12px;padding:13px}.pixel-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}.pixel-work{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}.pixel-canvas{display:grid;grid-template-columns:repeat(16, minmax(0,1fr));width:min(100%,320px);aspect-ratio:2/3;gap:1px;background:#34463a;border:2px solid #526653;image-rendering:pixelated;touch-action:manipulation}.pixel-cell{min-width:0;min-height:0;padding:0;border:0;border-radius:0;background:#1a241d;cursor:crosshair}.pixel-cell:hover{outline:1px solid #fff;z-index:1}.pixel-side{min-width:150px;flex:1}.pixel-palette{display:grid;grid-template-columns:repeat(5,30px);gap:6px;margin-top:7px}.swatch{width:30px;height:30px;padding:0;border:2px solid #68786a;border-radius:5px}.swatch.selected{outline:2px solid var(--accent);outline-offset:2px}.pixel-selected{width:30px;height:30px;border:1px solid #839184;border-radius:5px;margin-top:6px}.pixel-avatar{display:grid;grid-template-columns:repeat(16,1fr);width:92px;height:138px;image-rendering:pixelated;background:#1a241d;border:1px solid var(--line);border-radius:5px;overflow:hidden}.pixel-avatar span{min-width:0;min-height:0}
-
-/* expanded survival systems */
-.atlas{margin-top:14px;background:#101812;border:1px solid var(--line);border-radius:12px;padding:10px}
-.atlas svg{display:block;width:100%;height:auto;max-height:360px;background:#26382d;border-radius:8px}
-.atlas .land{fill:#344c3c;stroke:#71866f;stroke-width:2}.atlas .water{fill:#294b55}.atlas .road{fill:none;stroke:#c4b68b;stroke-width:5;stroke-dasharray:8 5;opacity:.85}
-.atlas .pin{cursor:pointer;fill:#e1c17b;stroke:#17231a;stroke-width:3}.atlas .pin.active{fill:#d97868;stroke:#fff;stroke-width:4}
-.atlas text{font:12px system-ui;fill:#fff;paint-order:stroke;stroke:#1b281f;stroke-width:3px;stroke-linejoin:round;pointer-events:none}
-.region-nav{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.region-nav button{font-size:12px;padding:7px 10px}
-.system-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
-.system-grid .panel{padding:14px}.item-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--line)}
-.item-row button{padding:5px 8px;font-size:11px}.encounter{border:1px solid #806c42;background:#302c20;border-radius:10px;padding:12px;margin-top:12px}
-.dead-screen{position:fixed;inset:0;background:#080c0aee;z-index:20;display:grid;place-items:center;padding:20px;text-align:center}.dead-screen .panel{max-width:520px}
-@media(max-width:760px){.system-grid{grid-template-columns:1fr}}
-
-/* 달무리 font by RanolP, Apache License 2.0; embedded via Noonnu CDN. */
-@font-face{font-family:Dalmoori;src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2102-01@1.0/dalmoori.woff') format('woff');font-display:swap}
-body,button,input,select,textarea,h1,h2,h3,.brand,.sectiontitle,.tag,.pill{font-family:Dalmoori,monospace!important}
-body{background:linear-gradient(#111923dd,#10151af2),radial-gradient(ellipse at 50% 0%,#34465b,#10151a 75%)}
-#portrait{width:180px;height:204px;min-height:0;padding:5px;border:3px ridge #59616e;border-radius:5px;background:#20232a;overflow:hidden}
-.pixel-portrait{width:100%;height:100%;display:block;image-rendering:pixelated;shape-rendering:crispEdges}
-.npc-card{display:grid;grid-template-columns:62px 1fr auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
-.npc-card .npc-face{width:62px;height:72px;border:2px ridge #566170;background:#242a32}
-.event-card{border:1px solid #8c7955;background:linear-gradient(145deg,#2a2c2d,#20262b);padding:16px;border-radius:8px;margin:12px 0}
-.event-card h3{margin:0 0 8px;color:#ead4a5}.event-choices{display:flex;gap:7px;flex-wrap:wrap}
-.event-choices button{flex:1;min-width:145px}
-#atlasImage{border:1px solid #596675;border-radius:7px;overflow:hidden;background:#1c2930}
-.seoul-map{width:100%;height:auto;display:block;image-rendering:pixelated}
-.seoul-map text{font-family:Dalmoori,monospace;fill:#f0ead9;stroke:#20262c;stroke-width:3px;paint-order:stroke;font-size:12px}
-.seoul-map .map-pin{fill:#e6c47d;stroke:#18212a;stroke-width:3;cursor:pointer}
-.seoul-map .map-pin.active{fill:#dc8172;stroke:#fff}
-.seoul-map .district{fill:#425344;stroke:#71826e;stroke-width:2}
-.seoul-map .road{fill:none;stroke:#b5a88d;stroke-width:7;stroke-dasharray:2 3}
-.seoul-map .river{fill:none;stroke:#397b91;stroke-width:35}
-#npcs{max-height:380px;overflow:auto}
-@media(max-width:650px){#portrait{width:150px;height:174px}.npc-card{grid-template-columns:54px 1fr}.npc-card .npc-face{width:54px;height:64px}.event-choices button{min-width:100%}}
-</style>
-</head>
-<body><div class="wrap">
-<header class="top"><div class="brand">LIFE <small>AFTER THE LAST DAY · SURVIVAL SANDBOX</small></div><div class="pill">BUILD 0.1 · SINGLE PLAYER</div></header>
-<section id="start" class="screen active"><div class="panel intro"><div class="gold small">2041년 10월 17일 · 정체불명의 감염 사태 23일째</div><h1>세상은 끝났지만,<br>하루는 계속된다.</h1><p>작은 마을에 남겨진 사람들의 이야기. 누구로 살아갈지, 누구와 함께할지, 어디를 집으로 삼을지는 아직 정해지지 않았다.</p><div class="actions" style="justify-content:center"><button class="primary" onclick="showCreate()">새로운 인생 시작</button><button onclick="loadGame()">이어하기</button></div><p class="small muted">게임 진행 상황은 이 브라우저에 자동 저장됩니다.</p></div></section>
-<section id="create" class="screen"><div class="panel"><div class="sectiontitle"><h2>새로운 생존자</h2><button onclick="randomize()">🎲 전부 무작위</button></div><p class="muted small">이름과 과거부터 현재의 모습까지 직접 정하거나 무작위로 정할 수 있어.</p>
-<div class="formgrid">
-<div class="field"><label>이름</label><input id="cname" maxlength="24" placeholder="이름"></div>
-<div class="field"><label>나이</label><input id="age" type="number" min="16" max="85" value="27"></div>
-<div class="field"><label>성별</label><select id="gender"><option>여성</option><option>남성</option><option>논바이너리</option><option>응답하지 않음</option></select></div>
-<div class="field"><label>직업 / 사태 이전의 생활</label><select id="job"><option>편의점 직원</option><option>대학생</option><option>간호사</option><option>교사</option><option>요리사</option><option>정비사</option><option>경찰관</option><option>프리랜서</option><option>무직</option><option>택배 기사</option><option>사서</option><option>농부</option></select></div>
-<div class="field"><label>성격</label><select id="personality"><option>신중한</option><option>낙천적인</option><option>경계심이 강한</option><option>다정한</option><option>독립적인</option><option>충동적인</option><option>현실적인</option><option>호기심 많은</option></select></div>
-<div class="field"><label>특기</label><select id="skill"><option>응급처치</option><option>요리</option><option>수리</option><option>식물 재배</option><option>관찰력</option><option>설득</option><option>체력</option><option>손재주</option><option>운전</option></select></div>
-<div class="field"><label>머리 모양</label><select id="hair"><option>짧은 흑발</option><option>긴 흑발</option><option>갈색 웨이브</option><option>묶은 머리</option><option>짧은 금발</option><option>헝클어진 머리</option><option>삭발</option></select></div>
-<div class="field"><label>눈동자 색</label><select id="eyes"><option>짙은 갈색</option><option>검은색</option><option>회색</option><option>푸른색</option><option>녹색</option><option>밝은 갈색</option></select></div>
-<div class="field"><label>옷차림</label><select id="outfit"><option>낡은 후드티</option><option>작업용 재킷</option><option>군용 스타일 재킷</option><option>셔츠와 코트</option><option>운동복</option><option>두꺼운 니트</option></select></div>
-<div class="field"><label>소지품</label><select id="item"><option>작은 손전등</option><option>물병</option><option>낡은 수첩</option><option>사진 한 장</option><option>멀티툴</option><option>가족의 열쇠</option></select></div>
-<div class="field wide"><label>과거 / 사태가 시작됐을 때</label><select id="past"><option>가족과 연락이 끊겼다.</option><option>혼자 마을로 피신해 왔다.</option><option>대피소에서 지내다 빠져나왔다.</option><option>일하던 곳에 고립되어 있었다.</option><option>누군가를 찾으러 이곳에 왔다.</option><option>이 마을에서 계속 살아왔다.</option></select></div>
-<div class="field wide"><label>외모나 인물에 대한 추가 메모</label><input id="appearance" placeholder="예: 왼쪽 눈썹 위 작은 흉터, 말수가 적음"></div>
-<div class="field wide"><label>픽셀 캐릭터 직접 그리기</label>
-<div class="pixel-editor">
- <div class="pixel-toolbar"><div><b>16 × 24 도트 캔버스</b><div class="small muted">색을 고르고 도트를 눌러 캐릭터를 완성해 봐.</div></div><div class="actions" style="margin:0"><button type="button" onclick="pixelClear()">전체 지우기</button><button type="button" onclick="pixelReset()">기본 캐릭터</button></div></div>
- <div class="pixel-work">
-  <div id="pixelCanvas" class="pixel-canvas" aria-label="픽셀 캐릭터 편집 캔버스"></div>
-  <div class="pixel-side"><div class="small muted">도구</div><div class="actions"><button type="button" id="pixelPen" class="primary" onclick="setPixelTool('pen')">그리기</button><button type="button" id="pixelEraser" onclick="setPixelTool('erase')">지우개</button></div><div class="small muted" style="margin-top:12px">색상 팔레트</div><div id="pixelPalette" class="pixel-palette"></div><div class="small muted" style="margin-top:10px">선택 색상</div><div id="pixelSelected" class="pixel-selected"></div></div>
- </div><div class="small muted">얼굴, 머리, 옷, 소품을 자유롭게 찍어 그려 봐. 완성한 모습은 게임 속 캐릭터에 적용돼.</div>
-</div></div>
-</div><div class="actions"><button class="primary" onclick="beginGame()">이 인물로 살아가기</button><button onclick="randomize()">다시 무작위 설정</button><button onclick="show('start')">돌아가기</button></div></div></section>
-<section id="game" class="screen">
-<div class="gamegrid"><main>
-<div class="panel"><div class="sectiontitle"><div><div class="tag" id="date">DAY 1 · 오전</div><h2 id="placeTitle">마을 광장</h2></div><div class="pill" id="weather">흐림</div></div><p id="placeDesc" class="muted">낮은 건물 사이로 바람이 분다.</p><div class="map" id="map"></div>
-<div class="atlas" id="atlas"><div class="sectiontitle"><b>주변 지역 지도</b><span class="small muted">지점을 선택해 이동</span></div><div id="atlasImage"></div><div id="regionNav" class="region-nav"></div><div class="small muted" id="regionHint">현재 위치와 주변 지점을 확인할 수 있다.</div></div>
-<div class="system-grid">
- <div class="panel"><div class="sectiontitle"><h3>인벤토리</h3><span class="small muted">아이템 사용</span></div><div id="itemActions"></div></div>
- <div class="panel"><div class="sectiontitle"><h3>제작 작업대</h3><span class="small muted">재료를 조합</span></div><div id="craftActions"></div></div>
- <div class="panel"><div class="sectiontitle"><h3>주민과 관계</h3><span class="small muted">대화와 호감</span></div><div id="relationshipActions"></div></div>
- <div class="panel"><div class="sectiontitle"><h3>생존 정보</h3><span class="small muted">위험 상태</span></div><div id="survivalInfo" class="small muted"></div></div>
-</div><div id="encounterBox"></div>
-</div>
-<div class="panel" style="margin-top:14px"><div class="sectiontitle"><h3>오늘의 기록</h3><span class="small muted">행동과 만남이 기록됩니다</span></div><div id="log" class="log"></div><div class="actions"><button onclick="act('탐색')">주변 살펴보기</button><button onclick="act('휴식')">잠시 휴식</button><button onclick="act('식사')">식량 먹기</button><button onclick="act('물')">물 마시기</button><button onclick="act('정리')">소지품 정리</button></div></div>
-</main><aside>
-<div class="panel"><div class="profile"><div class="portrait" id="portrait">🧍</div><div><h3 id="pname" style="margin:0">생존자</h3><div class="small muted" id="pmeta"></div><div class="tag" id="pjob"></div></div></div><hr style="border-color:var(--line);margin:15px 0"><div id="stats"></div><p class="small muted" id="trait"></p></div>
-<div class="panel" style="margin-top:14px"><h3 class="sectiontitle">소지품</h3><div id="inventory" class="small muted"></div></div>
-<div class="panel" style="margin-top:14px"><div class="sectiontitle"><h3>마을 사람들</h3><span class="small muted">관계</span></div><div id="npcs"></div></div>
-<div class="panel" style="margin-top:14px"><h3>행동 메뉴</h3><div class="actions"><button onclick="talk()">주민과 대화</button><button onclick="trade()">물자 교환</button><button onclick="sleep()">하루 마무리</button><button onclick="saveGame()">저장</button><button onclick="show('start')">메인 화면</button></div><div id="toast" class="toast"></div></div>
+@font-face{font-family:dalmoori;src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2102-01@1.0/dalmoori.woff') format('woff');font-display:swap}
+:root{--bg:#111613;--panel:#1b241f;--panel2:#242f28;--line:#465449;--ink:#e9eee8;--muted:#a8b4a8;--gold:#dfc28a;--red:#c77b70;--green:#8eae8b}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#26352b,#111613 62%);color:var(--ink);font:15px/1.55 dalmoori,monospace}button,input,select{font:inherit;color:inherit}button{background:#2a382e;border:1px solid var(--line);border-radius:7px;padding:9px 12px;cursor:pointer}button:hover{border-color:var(--gold);background:#354638}button:disabled{opacity:.4;cursor:not-allowed}input,select{background:#111914;border:1px solid var(--line);border-radius:6px;padding:9px;width:100%}label{display:block;color:var(--muted);font-size:12px;margin-bottom:4px}.wrap{max-width:1160px;margin:auto;padding:18px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px}.logo{font-size:24px;letter-spacing:3px}.logo small{display:block;font-size:10px;letter-spacing:1px;color:var(--muted)}.panel{background:linear-gradient(145deg,#202b24,#171f1a);border:1px solid var(--line);border-radius:11px;padding:15px;box-shadow:0 10px 25px #0004}.screen{display:none}.screen.active{display:block}.intro{max-width:720px;margin:7vh auto;text-align:center;padding:30px}.intro h1{font-size:clamp(32px,6vw,58px);line-height:1.2}.muted,.hint{color:var(--muted)}.small{font-size:12px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.wide{grid-column:1/-1}.field{min-width:0}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.between{display:flex;justify-content:space-between;gap:8px;align-items:center}.gamegrid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(260px,.8fr);gap:13px}.stack{display:grid;gap:12px}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.primary{background:#506b50;border-color:#8ba889}.gold{color:var(--gold)}.danger{border-color:#9a5e58}.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.stat{display:grid;grid-template-columns:75px 1fr 32px;gap:7px;align-items:center;font-size:12px;margin:6px 0}.bar{height:8px;background:#0e1511;border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:var(--green)}.bar.low i{background:var(--red)}.mapcanvas{width:100%;height:auto;display:block;background:#17221c;border-radius:8px;border:1px solid #465449}.placebtn{font-size:12px;padding:6px 8px}.log{height:220px;overflow:auto;background:#111914;border:1px solid var(--line);border-radius:7px;padding:10px;font-size:12px}.log p{margin:0 0 7px}.npcrow,.itemrow{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #344238}.npcrow:last-child,.itemrow:last-child{border:0}.canvasbox{background:#111914;border:1px solid var(--line);border-radius:8px;padding:8px;text-align:center}.sprite{image-rendering:pixelated;width:160px;height:200px;max-width:100%;object-fit:contain}.portrait{image-rendering:pixelated;width:180px;height:180px;max-width:100%;object-fit:contain}.battlecanvas{width:100%;height:auto;display:block;image-rendering:pixelated;background:#19231f;border:1px solid #687568;border-radius:8px}.event{padding:12px;border:1px solid #8b7650;background:#2a281e;border-radius:8px;margin:10px 0}.hidden{display:none!important}.tag{font-size:11px;border:1px solid #5a6b5d;border-radius:20px;padding:2px 7px;color:var(--muted)}.footer{font-size:10px;color:#859286;margin-top:14px}@media(max-width:800px){.gamegrid{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.wide{grid-column:auto}.wrap{padding:10px}}
+</style></head><body><div class="wrap">
+<header class="top"><div class="logo">LIFE <small>AFTER THE LAST DAY · SURVIVAL RPG</small></div><div class="row"><span class="tag">2030 · 생존 기록</span><button onclick="showScreen('title')">타이틀</button></div></header>
+<section id="title" class="screen active"><div class="panel intro"><div class="gold">2030년, 붕괴 이후</div><h1>마지막 날 이후</h1><p class="muted">이름조차 잊힌 세계. 안전 구역은 잠시 숨을 돌릴 수 있는 장소일 뿐, 바깥에는 아직 돌아오지 못한 사람들이 있다.</p><div class="actions" style="justify-content:center"><button class="primary" onclick="newGame()">새로운 생존 기록</button><button onclick="openSaves()">저장 기록 불러오기</button></div><p class="small muted">배경 지역은 특정 도시나 실제 주소로 고정되지 않는 가상의 구역입니다.</p></div></section>
+<section id="create" class="screen"><div class="panel"><h2>생존자 만들기</h2><div class="grid">
+<div class="field"><label>이름</label><input id="cName" value="이름 없는 생존자" maxlength="18"></div>
+<div class="field"><label>나이</label><input id="cAge" type="number" min="18" max="80" value="24"></div>
+<div class="field"><label>성별 / 호칭</label><select id="cPronoun"><option>선택하지 않음</option><option>여성</option><option>남성</option><option>논바이너리</option></select></div>
+<div class="field"><label>헤어스타일</label><select id="cHairStyle"><option value="short">짧은 머리</option><option value="long" selected>긴 생머리</option><option value="wavy">웨이브</option><option value="bob">단발</option><option value="ponytail">묶은 머리</option><option value="curly">곱슬머리</option><option value="shag">레이어드 컷</option><option value="shaved">짧게 민 머리</option></select></div>
+<div class="field"><label>머리 색상</label><select id="cHairColor"><option value="#30252b">흑발</option><option value="#674536">짙은 갈색</option><option value="#a66f45">밝은 갈색</option><option value="#d0a65f">금발</option><option value="#a94e4b">적갈색</option><option value="#777d87">회색</option><option value="#594b78">보라색</option><option value="#476e70">청록색</option><option value="#e4d8bd">백금색</option></select></div>
+<div class="field"><label>눈 색상</label><select id="cEyeColor"><option value="#44352d">짙은 갈색</option><option value="#70936f">초록색</option><option value="#668ca7">푸른색</option><option value="#9b7951">호박색</option><option value="#777b83">회색</option><option value="#765c8c">보라색</option><option value="#30252b">검은색</option></select></div>
+<div class="field"><label>피부 톤</label><select id="cSkin"><option value="#f1c6a5">밝은 톤</option><option value="#d99f7b" selected>중간 톤</option><option value="#ae7558">구릿빛</option><option value="#754b3d">짙은 톤</option></select></div>
+<div class="field"><label>상의 색상</label><select id="cTop"><option value="#485b50">세이지 그린</option><option value="#424b64">남색</option><option value="#75514b">벽돌색</option><option value="#55545b">차콜</option><option value="#9a8054">황갈색</option><option value="#647b83">청회색</option></select></div>
+<div class="field"><label>하의 색상</label><select id="cBottom"><option value="#384958">청바지</option><option value="#4b4b43">회색</option><option value="#514437">갈색</option><option value="#343b36">짙은 녹색</option></select></div>
+<div class="field"><label>성격</label><select id="cTrait"><option>신중함</option><option>낙천적</option><option>독립적</option><option>다정함</option><option>관찰력이 좋음</option><option>고집이 셈</option></select></div>
+<div class="field"><label>특기</label><select id="cSkill"><option>응급처치</option><option>수리</option><option>채집</option><option>협상</option><option>관찰</option></select></div>
+<div class="field wide"><label>전신 스프라이트 미리보기 · 게임에서 사용하는 동일한 캐릭터</label><div class="row"><div class="canvasbox"><canvas id="createSprite" width="48" height="64" class="sprite"></canvas><div class="small muted">전신</div></div><div class="canvasbox"><canvas id="createPortrait" width="96" height="96" class="portrait"></canvas><div class="small muted">초상화</div></div><div class="muted small" style="max-width:260px">헤어스타일과 색상을 각각 선택할 수 있어. 설정을 바꾸면 전신과 초상화에 즉시 반영돼.</div></div></div>
+</div><div class="actions"><button class="primary" onclick="startNewGame()">이 모습으로 시작</button><button onclick="randomLook()">외형 무작위</button><button onclick="showScreen('title')">돌아가기</button></div></div></section>
+<section id="saves" class="screen"><div class="panel"><h2>저장 기록</h2><div id="saveList"></div><button onclick="showScreen('title')">돌아가기</button></div></section>
+<section id="game" class="screen"><div class="between"><div><b id="where">안전 구역 · 중앙 쉼터</b><div class="small muted" id="clock">1일차 08:00</div></div><div class="row"><span class="tag" id="weather">흐림</span><button onclick="saveCurrent()">저장</button></div></div>
+<div class="gamegrid" style="margin-top:12px"><main class="stack">
+<div class="panel"><div class="between"><h3>구역 지도</h3><span class="small muted" id="regionName">안전 구역</span></div><canvas id="worldMap" class="mapcanvas" width="640" height="390"></canvas><div id="mapButtons" class="tabs"></div><div class="small muted" id="mapHint">안전 구역에서는 감염자가 출현하지 않는다.</div></div>
+<div class="panel"><div class="between"><h3>현재 상황</h3><span class="tag" id="placeTag">안전</span></div><p id="sceneText">안전 구역의 공기는 무겁지만, 적어도 이곳에서는 경계 근무자들이 주변을 살피고 있다.</p><div id="eventBox"></div><div class="actions"><button onclick="perform('search')">주변 살피기 (35분)</button><button onclick="perform('rest')">잠깐 쉬기 (30분)</button><button onclick="perform('meal')">식사하기 (15분)</button><button onclick="perform('water')">물 마시기 (5분)</button><button onclick="perform('sleep')">수면 (8시간)</button></div></div>
+<div class="panel"><h3>기록</h3><div id="log" class="log"></div></div>
+</main><aside class="stack">
+<div class="panel"><div class="between"><h3>생존자</h3><span class="tag" id="karma">카르마 50</span></div><div class="row"><canvas id="playerPortrait" width="96" height="96" class="portrait"></canvas><div><b id="playerName">생존자</b><div id="playerMeta" class="small muted"></div><div id="playerTrait" class="small"></div></div></div><div id="stats"></div></div>
+<div class="panel"><div class="between"><h3>인물 기록</h3><span class="small muted">만난 인물만 표시</span></div><div id="npcList" class="small muted">아직 만난 사람이 없다.</div></div>
+<div class="panel"><div class="between"><h3>가방</h3><span id="capacity" class="small muted"></span></div><div id="inventory"></div><div class="actions"><button onclick="openCraft()">제작</button><button onclick="openTrade()">물물교환</button></div><div id="craftTrade"></div></div>
+<div class="panel"><h3>목표</h3><div id="goalText" class="small"></div><div class="actions"><button onclick="checkEnding()">탈출 조건 확인</button><button onclick="openSaves()">저장 기록</button></div></div>
 </aside></div></section>
-</div>
+<section id="battle" class="screen"><div class="panel"><div class="between"><h2>조우</h2><span class="tag">턴제 상황</span></div><canvas id="battleCanvas" class="battlecanvas" width="640" height="300"></canvas><div id="battleText">상대가 다가온다.</div><div class="actions"><button class="primary" onclick="battleAction('strike')">행동하기</button><button onclick="battleAction('guard')">방어</button><button onclick="battleAction('evade')">거리 벌리기</button><button onclick="battleAction('item')">회복 아이템</button></div><p class="small muted">전투는 게임 내 추상적인 턴제 수치로 처리되며, 현실의 무기 사용법을 재현하지 않는다.</p></div></section>
+<section id="ending" class="screen"><div class="panel intro"><div class="gold">SURVIVAL RECORD COMPLETE</div><h1 id="endingTitle">기록의 끝</h1><p id="endingText"></p><button class="primary" onclick="showScreen('title')">타이틀로</button></div></section>
+<div class="footer">LIFE · 달무리 폰트: RanolP / Apache License 2.0 · 게임 코드 리팩터링 버전</div></div>
 <script>
-const $=id=>document.getElementById(id), pick=a=>a[Math.floor(Math.random()*a.length)];
-const names=['서윤','지안','도윤','하린','시우','민재','유진','이안','수현','은호','가은','태오','채원','현우','나린','준서','소연','이든'];
-const surnames=['김','이','박','최','정','한','윤','강','서','임','장','오'];
-const places=[
-{id:'square',name:'마을 광장',icon:'🏚️',desc:'작은 분수대와 게시판이 있는 마을 중심지. 생존자들이 소식을 나누곤 한다.',loot:['통조림','물병','낡은 지도']},
-{id:'store',name:'해오름 편의점',icon:'🏪',desc:'유리문에 먼지가 쌓여 있다. 선반은 대부분 비었지만 구석에 물건이 남아 있을지도 모른다.',loot:['통조림','생수','건전지']},
-{id:'clinic',name:'해오름 의원',icon:'🏥',desc:'접수대 위에 진료 기록이 놓여 있다. 조용하고 서늘하다.',loot:['붕대','소독제','진통제']},
-{id:'school',name:'초등학교',icon:'🏫',desc:'운동장에는 바람에 날린 종이들이 흩어져 있다. 교실마다 누군가의 흔적이 남아 있다.',loot:['수첩','물병','건전지']},
-{id:'police',name:'파출소',icon:'🚓',desc:'당직실 불은 꺼져 있다. 벽에는 대피 안내도가 붙어 있다.',loot:['손전등','무전기','지도']},
-{id:'park',name:'강변 공원',icon:'🌲',desc:'강물은 여전히 흐른다. 풀숲 사이로 작은 텃밭이 보인다.',loot:['허브','버섯','물병']},
-{id:'shelter',name:'주민 대피소',icon:'⛺',desc:'마을 회관을 임시 대피소로 바꾼 곳. 사람들이 모여 정보를 나눈다.',loot:['담요','통조림','물병']},
-{id:'house',name:'빈 주택',icon:'🏠',desc:'누군가 살던 집. 사진과 생활용품이 그대로 남아 있다.',loot:['담요','사진','통조림']},
-{id:'workshop',name:'정비소',icon:'🔧',desc:'공구와 부품이 어지럽게 놓여 있다. 아직 쓸 만한 물건이 있을 것 같다.',loot:['공구','건전지','천']},
+'use strict';
+const $=id=>document.getElementById(id);
+const clone=o=>JSON.parse(JSON.stringify(o));
+const clamp=(v,a=0,b=100)=>Math.max(a,Math.min(b,v));
+const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const ITEM={
+ water:{name:'생수',value:4,weight:1},can:{name:'통조림',value:8,weight:1},bandage:{name:'붕대',value:10,weight:1},herb:{name:'약초',value:5,weight:1},cloth:{name:'천 조각',value:3,weight:1},battery:{name:'건전지',value:6,weight:1},scrap:{name:'고철 부품',value:5,weight:2},filter:{name:'정수 필터',value:18,weight:1},medkit:{name:'응급 키트',value:24,weight:2},radio:{name:'장거리 통신 부품',value:40,weight:2},ration:{name:'비상 식량',value:12,weight:1},toolkit:{name:'수리 도구',value:22,weight:2}
+};
+const RECIPES=[
+ {name:'붕대 묶음',cost:{cloth:2,herb:1},out:{bandage:2},mins:35},
+ {name:'정수 필터',cost:{cloth:2,scrap:1},out:{filter:1},mins:55},
+ {name:'응급 키트',cost:{bandage:1,herb:2},out:{medkit:1},mins:45},
+ {name:'수리 도구',cost:{scrap:2,cloth:1},out:{toolkit:1},mins:60},
+ {name:'통신 부품',cost:{battery:2,scrap:3},out:{radio:1},mins:100}
 ];
-let state=null;
-const PIXEL_COLORS=['#1a241d','#f1d4b5','#d9a77c','#a96f50','#3a2721','#171719','#594039','#a9b3bd','#d7b879','#e7e1d2','#526c51','#344b6d','#8d4d4b','#6c7781','#7b9a65','#c5a0b8','#ffffff','#000000'];
-let pixelArt=Array(384).fill('transparent'),pixelColor='#171719',pixelTool='pen';
-function pixelIndex(x,y){return y*16+x}
-function buildPixelEditor(){
- const c=$('pixelCanvas');if(!c)return;c.innerHTML='';
- pixelArt.forEach((color,i)=>{const cell=document.createElement('button');cell.type='button';cell.className='pixel-cell';cell.style.background=color==='transparent'?'#1a241d':color;cell.setAttribute('aria-label','도트 '+(i%16+1)+','+(Math.floor(i/16)+1));cell.addEventListener('click',()=>paintPixel(i));c.appendChild(cell)});
- const p=$('pixelPalette');p.innerHTML='';PIXEL_COLORS.forEach(color=>{const b=document.createElement('button');b.type='button';b.className='swatch'+(color===pixelColor?' selected':'');b.style.background=color;b.title=color;b.onclick=()=>{pixelColor=color;pixelTool='pen';updatePixelTools();buildPixelPalette()};p.appendChild(b)});
- $('pixelSelected').style.background=pixelTool==='erase'?'repeating-conic-gradient(#aaa 0 25%,#333 0 50%) 0/10px 10px':pixelColor;
-}
-function buildPixelPalette(){const p=$('pixelPalette');p.innerHTML='';PIXEL_COLORS.forEach(color=>{const b=document.createElement('button');b.type='button';b.className='swatch'+(color===pixelColor?' selected':'');b.style.background=color;b.title=color;b.onclick=()=>{pixelColor=color;pixelTool='pen';updatePixelTools();buildPixelPalette()};p.appendChild(b)});$('pixelSelected').style.background=pixelTool==='erase'?'#777':pixelColor}
-function updatePixelTools(){$('pixelPen').className=pixelTool==='pen'?'primary':'';$('pixelEraser').className=pixelTool==='erase'?'primary':'';$('pixelSelected').style.background=pixelTool==='erase'?'#777':pixelColor}
-function setPixelTool(t){pixelTool=t;updatePixelTools()}
-function paintPixel(i){pixelArt[i]=pixelTool==='erase'?'transparent':pixelColor;const el=$('pixelCanvas').children[i];if(el)el.style.background=pixelArt[i]==='transparent'?'#1a241d':pixelArt[i]}
-function pixelClear(){pixelArt=Array(384).fill('transparent');buildPixelEditor()}
-function pixelReset(){pixelArt=Array(384).fill('transparent');const put=(x,y,w,h,c)=>{for(let yy=y;yy<y+h;yy++)for(let xx=x;xx<x+w;xx++)pixelArt[pixelIndex(xx,yy)]=c};put(5,2,6,5,'#171719');put(4,4,8,3,'#171719');put(5,5,6,4,'#d9a77c');put(6,6,1,1,'#171719');put(9,6,1,1,'#171719');put(7,8,2,1,'#a96f50');put(4,10,8,7,'#526c51');put(2,11,3,6,'#526c51');put(11,11,3,6,'#526c51');put(5,17,3,5,'#344b6d');put(8,17,3,5,'#344b6d');buildPixelEditor()}
-function pixelAvatarHTML(data){if(!data||data.length!==384)return '🧍';return '<div class="pixel-avatar">'+data.map(c=>'<span style="background:'+(c==='transparent'?'transparent':c)+'"></span>').join('')+'</div>'}
-
-function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active')}
-function showCreate(){show('create');randomize();if(!pixelArt.some(c=>c!=='transparent'))pixelReset();else buildPixelEditor()}
-function randomize(){ $('cname').value=pick(surnames)+pick(names);$('age').value=16+Math.floor(Math.random()*48);['gender','job','personality','skill','hair','eyes','outfit','item','past'].forEach(id=>{let e=$(id);e.selectedIndex=Math.floor(Math.random()*e.options.length)});$('appearance').value=pick(['왼쪽 손목에 낡은 시계','눈 밑에 작은 점','늘 주변을 살피는 버릇','낡은 천 가방을 메고 있다','웃을 때 한쪽 보조개가 생긴다','손등에 잉크 자국이 남아 있다'])}
-function beginGame(){
-const name=$('cname').value.trim()||pick(surnames)+pick(names);
-state={person:{name,age:+$('age').value||27,gender:$('gender').value,job:$('job').value,personality:$('personality').value,skill:$('skill').value,hair:$('hair').value,eyes:$('eyes').value,outfit:$('outfit').value,item:$('item').value,past:$('past').value,appearance:$('appearance').value,pixelArt:[...pixelArt]},day:1,hour:9,place:'square',stats:{건강:90,허기:82,갈증:85,피로:18,기분:72},inventory:[$('item').value,'통조림','생수'],npcs:makeNPCs(),log:[],visited:['square']};
-writeLog('당신은 '+name+'라는 이름으로 이 마을에서 눈을 뜬다. 감염 사태가 시작된 지 23일째. 오늘도 살아갈 시간이 찾아왔다.');writeLog(state.person.past);render();show('game');saveGame()
-}
-function makeNPCs(){return [{name:pick(surnames)+pick(names),job:'대피소 운영 담당',personality:'차분한',relation:0,place:'shelter',desc:'마을의 물자와 사람들을 관리한다.'},{name:pick(surnames)+pick(names),job:'전직 정비사',personality:'무뚝뚝한',relation:0,place:'workshop',desc:'고장 난 발전기를 고치고 있다.'},{name:pick(surnames)+pick(names),job:'대학생',personality:'호기심 많은',relation:0,place:'school',desc:'마을의 소식을 수첩에 기록한다.'},{name:pick(surnames)+pick(names),job:'간호사',personality:'다정한',relation:0,place:'clinic',desc:'의원에서 다친 주민들을 돌본다.'}]}
-function writeLog(t){state.log.push({day:state.day,hour:state.hour,text:t});if(state.log.length>70)state.log.shift()}
-function advance(n=1){state.hour+=n;state.stats.허기=Math.max(0,state.stats.허기-n*1.4);state.stats.갈증=Math.max(0,state.stats.갈증-n*1.8);state.stats.피로=Math.min(100,state.stats.피로+n*1.2);if(state.hour>=24){state.hour-=24;state.day++;writeLog('밤이 지나고 새로운 아침이 찾아왔다. 마을은 어제와 조금 달라져 있다.');if(Math.random()<.28){let event=pick(['멀리서 들려오던 사이렌이 멎었다.','대피소 게시판에 새로운 공지가 붙었다.','밤사이 비가 내려 길이 젖어 있다.','누군가 마을을 떠났다는 소문이 돈다.']);writeLog(event)}}}
-function act(kind){if(!state)return;if(kind==='탐색'){let p=places.find(x=>x.id===state.place);let found=Math.random()<.72?pick(p.loot):null;if(found){state.inventory.push(found);writeLog(p.name+'에서 '+found+'을(를) 발견했다.')}else writeLog('주변을 살펴봤지만 쓸 만한 물건은 찾지 못했다.');advance(2)}
-if(kind==='휴식'){state.stats.피로=Math.max(0,state.stats.피로-18);state.stats.기분=Math.min(100,state.stats.기분+4);writeLog('잠시 앉아 숨을 고른다. 생각이 조금 정리된다.');advance(2)}
-if(kind==='식사'){let i=state.inventory.findIndex(x=>['통조림','빵','식량'].includes(x));if(i<0){writeLog('먹을 것이 없다.');}else{let f=state.inventory.splice(i,1)[0];state.stats.허기=Math.min(100,state.stats.허기+35);writeLog(f+'을(를) 먹었다. 속이 조금 든든해졌다.')}advance(1)}
-if(kind==='물'){let i=state.inventory.indexOf('생수');if(i<0)writeLog('마실 물이 없다.');else{state.inventory.splice(i,1);state.stats.갈증=Math.min(100,state.stats.갈증+42);writeLog('물을 마셨다. 갈증이 가신다.')}advance(1)}
-if(kind==='정리'){writeLog('가방을 정리했다. '+state.inventory.length+'개의 물건을 가지고 있다.');advance(1)}
-render();saveGame()}
-function move(id){if(!state)return;let p=places.find(x=>x.id===id);if(!p)return;state.place=id;if(!state.visited.includes(id))state.visited.push(id);advance(1);writeLog(p.name+'에 도착했다. '+p.desc);let npc=state.npcs.find(n=>n.place===id);if(npc)writeLog(npc.name+'이(가) 이곳에 있다.');render();saveGame()}
-function talk(){let n=state.npcs.find(n=>n.place===state.place);if(!n){writeLog('이곳에는 대화를 나눌 사람이 보이지 않는다.');advance(1)}else{let lines=['요즘은 해가 지기 전에 돌아오는 게 좋아요.','대피소에 필요한 물건이 있으면 게시판을 확인해 봐요.','예전에는 이 거리가 참 붐볐는데.','오늘은 별일 없었으면 좋겠네요.'];writeLog(n.name+'과(와) 대화를 나눴다. “'+pick(lines)+'”');n.relation=Math.min(100,n.relation+5);state.stats.기분=Math.min(100,state.stats.기분+3);advance(1)}render();saveGame()}
-function trade(){let n=state.npcs.find(n=>n.place===state.place);if(!n){writeLog('물자를 교환할 주민이 없다.');}else if(state.inventory.includes('통조림')){state.inventory.splice(state.inventory.indexOf('통조림'),1);state.inventory.push(pick(['붕대','건전지','빵','허브']));n.relation+=2;writeLog(n.name+'과(와) 물자를 교환했다. 통조림 하나를 건넸다.')}else writeLog('교환할 만한 물건이 없다. 통조림이 있으면 물물교환을 할 수 있다.');advance(1);render();saveGame()}
-function sleep(){state.stats.피로=Math.max(0,state.stats.피로-55);state.stats.기분=Math.min(100,state.stats.기분+8);state.hour=7;state.day++;state.stats.허기=Math.max(0,state.stats.허기-12);state.stats.갈증=Math.max(0,state.stats.갈증-15);writeLog('잠자리에 들었다. 창밖의 소리가 한동안 이어졌지만, 결국 아침이 왔다.');render();saveGame()}
-function render(){let p=state.person,pl=places.find(x=>x.id===state.place);$('date').textContent='DAY '+state.day+' · '+(state.hour<6?'새벽':state.hour<12?'오전':state.hour<18?'오후':'저녁')+' '+String(state.hour).padStart(2,'0')+':00';$('placeTitle').textContent=pl.name;$('placeDesc').textContent=pl.desc;$('weather').textContent=pick(['흐림','쌀쌀함','약한 비','바람']);$('pname').textContent=p.name;$('pmeta').textContent=p.age+'세 · '+p.gender;$('pjob').textContent=p.job;$('portrait').innerHTML=pixelAvatarHTML(p.pixelArt);$('trait').textContent=p.personality+' 성격 · 특기: '+p.skill+' · '+p.hair+' / '+p.eyes+' 눈 · '+p.outfit+' · '+p.appearance;
-$('stats').innerHTML=Object.entries(state.stats).map(([k,v])=>'<div class="barrow"><span>'+k+'</span><div class="bar"><i style="width:'+v+'%;background:'+(v<25?'var(--red)':'var(--green)')+'"></i></div><b>'+Math.round(v)+'</b></div>').join('');
-$('inventory').textContent=state.inventory.length?state.inventory.join(' · '):'비어 있음';$('npcs').innerHTML=state.npcs.map(n=>'<div class="npc"><div><b>'+n.name+'</b><div class="small muted">'+n.job+' · '+n.personality+'</div><div class="tag">'+(n.place===state.place?'이곳에 있음':places.find(x=>x.id===n.place).name)+'</div></div><span class="small">♥ '+n.relation+'</span></div>').join('');
-$('map').innerHTML=places.map(x=>'<button class="place '+(x.id===state.place?'current':'')+'" onclick="move(\''+x.id+'\')"><strong>'+x.icon+' '+x.name+'</strong><span>'+(state.visited.includes(x.id)?'방문함':'미방문')+(x.id===state.place?' · 현재 위치':'')+'</span></button>').join('');
-$('log').innerHTML=state.log.slice().reverse().map(e=>'<div class="entry"><time>DAY '+e.day+' · '+String(e.hour).padStart(2,'0')+':00</time>'+escapeHTML(e.text)+'</div>').join('')}
-function escapeHTML(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function saveGame(){if(!state)return;localStorage.setItem('life-zombie-save',JSON.stringify(state));$('toast').textContent='저장 완료 · 이 브라우저에 진행 상황을 보관했어.'}
-function loadGame(){let s=localStorage.getItem('life-zombie-save');if(!s){alert('저장된 게임이 없어. 새로운 인생을 시작해 줘.');return}try{state=JSON.parse(s);render();show('game')}catch(e){alert('저장 데이터를 불러오지 못했어. 새 게임을 시작해 줘.')}}
-pixelReset();
-
-/* LIFE 0.2 — world, encounters, crafting, relationships and mortality */
-const extraPlaces=[
-{id:'forest',name:'북쪽 숲',icon:'🌲',desc:'젖은 낙엽과 쓰러진 나무 사이로 작은 오솔길이 이어진다.',loot:['허브','버섯','나뭇가지','천'],region:'외곽'},
-{id:'mall',name:'폐쇄된 쇼핑몰',icon:'🏬',desc:'셔터가 내려간 상점가. 유리 천장 너머로 빛이 희미하게 들어온다.',loot:['통조림','건전지','천','생수'],region:'외곽'},
-{id:'hospital',name:'시립 종합병원',icon:'🩺',desc:'비상등만 깜빡이는 병원. 남겨진 의료 물자를 찾아볼 수 있다.',loot:['붕대','소독제','진통제','마스크'],region:'외곽'},
-{id:'base',name:'외곽 군 임시기지',icon:'⛺',desc:'철제 펜스와 임시 천막이 남아 있는 통제 구역.',loot:['건전지','통조림','공구','무전기'],region:'외곽'},
-{id:'gas',name:'국도 주유소',icon:'⛽',desc:'국도로 이어지는 작은 주유소. 창고 문이 반쯤 열려 있다.',loot:['생수','천','건전지','연료통'],region:'국도'}
+const PLACES=[
+ {id:'hub',name:'중앙 쉼터',region:'안전 구역',x:320,y:185,safe:true,desc:'낡은 체육관을 보강해 만든 쉼터. 사람들의 목소리가 낮게 오간다.'},
+ {id:'clinic',name:'간이 진료소',region:'안전 구역',x:210,y:115,safe:true,desc:'간이 진료소. 의료 담당자가 물자를 정리하고 있다.'},
+ {id:'kitchen',name:'공동 배급소',region:'안전 구역',x:440,y:110,safe:true,desc:'정해진 시간에 식량을 나누는 곳이다.'},
+ {id:'workshop',name:'수리 작업장',region:'안전 구역',x:445,y:265,safe:true,desc:'고장 난 발전 설비와 생활 도구를 수리하는 작업장.'},
+ {id:'gate',name:'외곽 검문소',region:'안전 구역',x:110,y:260,safe:true,desc:'외부 출입을 관리하는 검문소. 경계 인력이 교대 중이다.'},
+ {id:'market',name:'교환 장터',region:'안전 구역',x:320,y:300,safe:true,desc:'필요한 물건을 가치에 맞춰 교환하는 작은 장터.'},
+ {id:'woods',name:'침엽수림',region:'외곽 숲',x:105,y:95,safe:false,desc:'나무 사이로 오래된 산책로가 이어진다.'},
+ {id:'cabin',name:'관리용 산장',region:'외곽 숲',x:275,y:90,safe:false,desc:'숲 가장자리에 있는 작은 관리용 건물.'},
+ {id:'depot',name:'폐쇄된 물류창고',region:'산업 지대',x:505,y:90,safe:false,desc:'물류 상자가 어지럽게 쌓인 창고.'},
+ {id:'yard',name:'정비 야적장',region:'산업 지대',x:490,y:275,safe:false,desc:'비에 젖은 자재와 폐기물이 쌓여 있다.'},
+ {id:'station',name:'지하 연결 통로',region:'지하 구역',x:150,y:315,safe:false,desc:'비상등만 희미하게 켜진 지하 통로.'},
+ {id:'relay',name:'중계 시설',region:'지하 구역',x:300,y:185,safe:false,desc:'오래된 통신 중계 장치가 남아 있다.'}
 ];
-extraPlaces.forEach(p=>{p.region=p.region||'마을';places.push(p)});
-const regionOf=id=>places.find(p=>p.id===id)?.region||'마을';
-const personalityProfiles=[
-{type:'신중한',like:'차분한 대화',dislike:'성급한 결정',style:'말하기 전에 잠시 생각한다.'},
-{type:'낙천적인',like:'농담과 격려',dislike:'비관적인 말',style:'어려운 상황에서도 작은 희망을 찾는다.'},
-{type:'경계심이 강한',like:'약속을 지키는 행동',dislike:'갑작스러운 접근',style:'상대의 말보다 행동을 오래 지켜본다.'},
-{type:'다정한',like:'도움과 배려',dislike:'무례한 태도',style:'상대의 안부를 먼저 묻는다.'},
-{type:'독립적인',like:'선택을 존중하는 태도',dislike:'지나친 간섭',style:'혼자 결정하고 움직이는 편이다.'},
-{type:'호기심 많은',like:'새로운 정보',dislike:'대화의 단절',style:'사소한 것도 질문으로 이어 간다.'},
-{type:'현실적인',like:'실질적인 도움',dislike:'근거 없는 약속',style:'가능한 일과 불가능한 일을 분명히 나눈다.'}
+const NPC_TEMPLATES=[
+ {id:'medic',name:'서윤',age:29,job:'진료소 담당',personality:'차분하고 원칙을 중시함',look:'짧은 흑발, 둥근 안경, 소매를 걷은 진료복',place:'clinic',event:'진료소의 약품 상자가 쓰러져 있다. 서윤은 혼자 정리하다가 도움을 청한다.',choices:[['상자를 함께 정리한다',8,5],['필요한 물자를 묻는다',3,1],['바쁘다며 지나간다',-2,-1]],like:'의료 물자와 솔직한 설명'},
+ {id:'mechanic',name:'도겸',age:32,job:'설비 담당',personality:'말수는 적지만 약속을 지킴',look:'짙은 밤색 짧은 머리, 기름 묻은 작업복, 손목 보호대',place:'workshop',event:'발전기에서 불규칙한 진동이 난다. 도겸은 점검표를 들고 난감한 표정이다.',choices:[['점검표를 같이 확인한다',8,4],['부품이 있는지 묻는다',3,2],['작업을 방해하지 않는다',0,0]],like:'정리된 도구와 약속'},
+ {id:'scout',name:'나래',age:24,job:'기록 및 정찰 담당',personality:'호기심 많고 관찰력이 뛰어남',look:'짧은 적갈색 단발, 작은 수첩과 목에 건 쌍안경',place:'gate',event:'나래가 찢어진 지도를 펼쳐 놓고 이동 경로를 표시하고 있다.',choices:[['발견한 길을 알려준다',9,5],['지도 복구를 돕는다',6,3],['모른다고 답한다',0,0]],like:'새로운 정보와 정확한 기록'},
+ {id:'guard',name:'이안',age:35,job:'검문소 경비 담당',personality:'경계심이 강하고 규칙을 중시함',look:'짧은 회색 머리, 낡은 조끼, 단정한 자세',place:'gate',event:'검문소 출입 기록에 빈칸이 생겼다. 이안은 기록을 확인해 달라고 요청한다.',choices:[['기록을 함께 대조한다',8,4],['상황을 먼저 듣는다',4,2],['관여하지 않는다',-1,0]],like:'규칙 준수와 침착함'},
+ {id:'cook',name:'하린',age:27,job:'배급소 담당',personality:'사교적이고 낙천적임',look:'높게 묶은 짙은 머리, 앞치마, 소매의 작은 수선 자국',place:'kitchen',event:'배급소에 식량 수량이 맞지 않는다. 하린은 장부를 다시 세고 있다.',choices:[['장부를 함께 확인한다',8,5],['식량 보관법을 묻는다',4,3],['다음에 이야기한다',0,0]],like:'협력과 유머'}
 ];
-const oldBeginGame=beginGame;
-beginGame=function(){oldBeginGame();state.stats.감염=0;state.npcs.forEach((n,i)=>{const profile=personalityProfiles[(i*2+Math.floor(Math.random()*personalityProfiles.length))%personalityProfiles.length];n.personality=profile.type;n.likes=profile.like;n.dislikes=profile.dislike;n.style=profile.style;n.trust=10+Math.floor(Math.random()*20);n.affection=0;n.romance=false;n.mood=pick(['평온함','피곤함','긴장함','경계 중'])});state.inventory.push('천','나뭇가지');state.region='마을';state.dead=false;state.lastEncounter='';render();saveGame()};
-const oldAdvance=advance;
-advance=function(n=1){if(!state||state.dead)return;oldAdvance(n);const s=state.stats;s.건강=Math.max(0,s.건강-(s.허기===0?4*n:0)-(s.갈증===0?6*n:0)-(s.피로>=95?2*n:0));if(Math.random()<.035*n)s.감염=Math.min(100,(s.감염||0)+1);if((s.감염||0)>65)s.건강=Math.max(0,s.건강-2*n);if(s.건강<=0||s.감염>=100){state.dead=true;writeLog('생존을 이어 갈 수 없게 되었다. 이번 여정은 여기서 끝난다.');showDeath()}};
-function showDeath(){if($('deathOverlay'))return;const d=document.createElement('div');d.id='deathOverlay';d.className='dead-screen';d.innerHTML='<div class="panel"><div class="danger small">SURVIVAL FAILED</div><h1>이번 여정은 끝났다.</h1><p class="muted">DAY '+state.day+' · '+state.person.name+'</p><p>건강이나 감염 상태를 관리하지 못해 생존을 이어 갈 수 없게 되었다.</p><button class="primary" onclick="newRunAfterDeath()">새로운 생존자 만들기</button></div>';document.body.appendChild(d)}
-function newRunAfterDeath(){localStorage.removeItem('life-zombie-save');state=null;$('deathOverlay')?.remove();showCreate()}
-const oldMove=move;
-move=function(id){if(!state||state.dead)return;const before=state.place;oldMove(id);if(state.dead)return;const encounterChance=id===before ? 0.08 : 0.28;if(Math.random()<encounterChance)randomEncounter('이동');render();saveGame()};
-const oldAct=act;
-act=function(kind){if(!state||state.dead)return;oldAct(kind);if(state.dead)return;if(kind==='탐색'&&Math.random()<.48)randomEncounter('탐색');render();saveGame()};
-function randomEncounter(trigger){const choices=[
-()=>{const n=pick(state.npcs);writeLog('우연히 '+n.name+'을(를) 만났다. '+n.style);n.trust=Math.min(100,n.trust+3);state.lastEncounter=n.name+'과(와)의 우연한 만남';},
-()=>{const loot=pick(['생수','통조림','붕대','건전지','허브']);state.inventory.push(loot);writeLog('무너진 진열대 아래에서 '+loot+'을(를) 발견했다.');state.lastEncounter=loot+' 발견';},
-()=>{state.stats.피로=Math.min(100,state.stats.피로+12);writeLog('갑작스러운 소란에 놀라 서둘러 자리를 피했다. 피로가 쌓였다.');state.lastEncounter='불안한 소란';},
-()=>{state.stats.기분=Math.min(100,state.stats.기분+8);writeLog('누군가 남긴 짧은 쪽지를 발견했다. “어딘가에서 다시 만나요.”');state.lastEncounter='남겨진 쪽지';},
-()=>{state.stats.건강=Math.max(0,state.stats.건강-8);state.stats.감염=Math.min(100,(state.stats.감염||0)+5);writeLog('위험한 상황을 간신히 벗어났다. 몸에 작은 상처가 생겼다.');state.lastEncounter='위험한 조우';},
-()=>{const n=pick(state.npcs);writeLog(n.name+'이(가) 필요한 물자를 찾고 있다. 도와주면 신뢰를 얻을 수 있을 것 같다.');state.lastEncounter='주민의 부탁';}
-];pick(choices)();$('encounterBox').innerHTML='<div class="encounter"><b>⚑ 랜덤 인카운터 · '+trigger+'</b><div class="small">'+escapeHTML(state.lastEncounter)+'</div></div>'}
-function useItem(item){if(!state||state.dead)return;const i=state.inventory.indexOf(item);if(i<0)return;const effects={'생수':['갈증',42],'정수된 물':['갈증',55],'물병':['갈증',35],'통조림':['허기',35],'빵':['허기',25],'식량':['허기',40],'붕대':['건강',22],'진통제':['건강',12],'소독제':['감염',-18],'허브':['기분',8],'담요':['피로',10]};const e=effects[item];if(!e){writeLog(item+'은(는) 지금 사용할 수 있는 효과가 없다.');return}state.inventory.splice(i,1);state.stats[e[0]]=Math.max(0,Math.min(100,state.stats[e[0]]+e[1]));writeLog(item+'을(를) 사용했다. '+e[0]+' 상태가 변했다.');render();saveGame()}
-const recipes=[
-{name:'응급 붕대',needs:{'천':2,'허브':1},makes:'붕대',desc:'천 2 + 허브 1'},
-{name:'간이 정수 물',needs:{'생수':1,'허브':1},makes:'정수된 물',desc:'생수 1 + 허브 1'},
-{name:'수리 키트',needs:{'공구':1,'건전지':1},makes:'수리 키트',desc:'공구 1 + 건전지 1'},
-{name:'간이 침낭',needs:{'천':3,'담요':1},makes:'침낭',desc:'천 3 + 담요 1'}
-];
-function craft(index){if(!state||state.dead)return;const r=recipes[index];for(const [item,count] of Object.entries(r.needs)){if(state.inventory.filter(x=>x===item).length<count){$('toast').textContent='재료가 부족해. 필요한 재료: '+r.desc;return}}for(const [item,count] of Object.entries(r.needs)){for(let k=0;k<count;k++)state.inventory.splice(state.inventory.indexOf(item),1)}state.inventory.push(r.makes);writeLog(r.makes+' 제작을 완료했다.');render();saveGame()}
-function relationshipAction(action){if(!state||state.dead)return;const n=state.npcs.find(x=>x.place===state.place);if(!n){writeLog('이곳에는 함께할 주민이 없다.');render();return}if(action==='talk'){const line=n.personality==='경계심이 강한'?'“아직은 서로를 더 알아가야겠어요.”':n.personality==='낙천적인'?'“오늘은 어제보다 나을 거예요.”':n.personality==='호기심 많은'?'“바깥 지역에서 새로운 걸 봤나요?”':'“와 줘서 고마워요. 잠깐 이야기할까요?”';writeLog(n.name+'('+n.personality+'): '+line+' '+n.style);n.trust=Math.min(100,n.trust+6);n.affection=Math.min(100,n.affection+4)}
-if(action==='help'){if(state.inventory.includes('통조림')){state.inventory.splice(state.inventory.indexOf('통조림'),1);n.trust=Math.min(100,n.trust+14);n.affection=Math.min(100,n.affection+7);writeLog(n.name+'에게 통조림을 건넸다. '+n.name+'의 신뢰가 높아졌다.')}else writeLog('도움을 주려면 통조림이 필요하다.')}
-if(action==='date'){if(n.affection<35||n.trust<35){writeLog(n.name+'은(는) 아직 둘만의 시간을 보내기에는 이르다고 생각한다.');}else{n.romance=true;n.affection=Math.min(100,n.affection+10);writeLog(n.name+'과(와) 함께 마을의 조용한 길을 걸었다. 서로에 대해 조금 더 알게 되었다.')}}advance(1);render();saveGame()}
-const oldRender=render;
-render=function(){oldRender();if(!state)return;
-$('map').style.display='none';
-const regions=[...new Set(places.map(p=>regionOf(p.id)))];const activeRegion=regionOf(state.place);
-$('regionNav').innerHTML=regions.map(r=>'<button class="'+(r===activeRegion?'primary':'')+'" onclick="showRegion(\''+r+'\')">'+r+'</button>').join('');
-drawAtlas(activeRegion);
-$('itemActions').innerHTML=state.inventory.length?state.inventory.map((item,i)=>'<div class="item-row"><span>'+escapeHTML(item)+'</span><button onclick="useItem(\''+item.replace(/'/g,'')+'\')">사용</button></div>').join(''):'<span class="muted">가방이 비어 있다.</span>';
-$('craftActions').innerHTML=recipes.map((r,i)=>'<div class="item-row"><div><b>'+r.makes+'</b><div class="small muted">'+r.desc+'</div></div><button onclick="craft('+i+')">제작</button></div>').join('');
-const here=state.npcs.find(n=>n.place===state.place);
-$('relationshipActions').innerHTML=here?'<b>'+escapeHTML(here.name)+'</b> · '+here.personality+'<div class="small muted">'+here.style+' 좋아하는 것: '+here.likes+' / 피하는 것: '+here.dislikes+'</div><div class="small">신뢰 '+here.trust+' · 호감 '+here.affection+' · '+(here.romance?'서로 특별한 사이':'관계 형성 중')+'</div><div class="actions"><button onclick="relationshipAction(\'talk\')">대화</button><button onclick="relationshipAction(\'help\')">도와주기</button><button onclick="relationshipAction(\'date\')">함께 산책하기</button></div>':'<span class="muted">현재 위치에는 만날 주민이 없다.</span>';
-$('survivalInfo').innerHTML='건강이 0이 되거나 감염이 100에 도달하면 여정이 끝난다.<br>허기와 갈증이 0인 상태가 이어지면 건강이 감소한다.<br>감염은 위험한 조우에서 증가할 수 있으며 소독제로 낮출 수 있다.';
-if(state.dead)showDeath();
+const Game={
+ state:null,
+ ui:{screen:'title',feedback:null},
+ init(){this.bindCreator();this.renderSaves();},
+ newState(person){return{
+  player:{...person,hp:100,hunger:12,thirst:10,fatigue:8,stress:10,infection:0,karma:50,trait:person.trait,skill:person.skill,capacity:18,slots:16},
+  world:{day:1,hour:8,minute:0,place:'hub',region:'안전 구역',weather:'흐림',visited:['hub'],ending:null},
+  inventory:{water:2,can:2,bandage:1,cloth:2,herb:1,battery:1,scrap:1},
+  npcs:NPC_TEMPLATES.map(n=>({...clone(n),met:false,eventDone:false,trust:10,affection:0,relationship:'낯선 사람'})),
+  map:{unlocked:['안전 구역','외곽 숲'],encounters:0},
+  combat:null,log:[],goal:{days:30,radio:false,escape:false}
+ }},
+ get state(){return this._state},set state(v){this._state=v},
+ bindCreator(){
+  ['cHairStyle','cHairColor','cEyeColor','cSkin','cTop','cBottom'].forEach(id=>$(id).addEventListener('change',()=>this.drawCreator()));
+  this.drawCreator();
+ },
+ readAppearance(){return {hairStyle:$('cHairStyle').value,hairColor:$('cHairColor').value,eyeColor:$('cEyeColor').value,skin:$('cSkin').value,top:$('cTop').value,bottom:$('cBottom').value}},
+ drawCreator(){const p=this.readAppearance();drawSprite($('createSprite'),p,'down',0);drawPortrait($('createPortrait'),p)},
+ randomLook(){const choices={cHairStyle:['short','long','wavy','bob','ponytail','curly','shag','shaved'],cHairColor:['#30252b','#674536','#a66f45','#d0a65f','#a94e4b','#777d87','#594b78','#476e70','#e4d8bd'],cEyeColor:['#44352d','#70936f','#668ca7','#9b7951','#777b83','#765c8c','#30252b'],cSkin:['#f1c6a5','#d99f7b','#ae7558','#754b3d'],cTop:['#485b50','#424b64','#75514b','#55545b','#9a8054','#647b83'],cBottom:['#384958','#4b4b43','#514437','#343b36']};Object.entries(choices).forEach(([id,a])=>$(id).value=a[rand(0,a.length-1)]);this.drawCreator()},
+ startNewGame(){const age=clamp(+$('cAge').value,18,80);const p={name:$('cName').value.trim()||'생존자',age,pronoun:$('cPronoun').value,...this.readAppearance(),trait:$('cTrait').value,skill:$('cSkill').value};this.state=this.newState(p);this.log('눈을 뜨자 안전 구역의 발전기 소리가 들린다. 바깥 상황은 아직 알 수 없다.');this.showScreen('game');this.render();this.drawMap();this.tryNpcAtPlace();},
+ showScreen(id){document.querySelectorAll('.screen').forEach(e=>e.classList.remove('active'));$(id).classList.add('active');this.ui.screen=id},
+ log(text){if(!this.state)return;this.state.log.unshift({day:this.state.world.day,time:this.clockText(),text});this.state.log=this.state.log.slice(0,80)},
+ clockText(){const w=this.state.world;return String(w.hour).padStart(2,'0')+':'+String(w.minute).padStart(2,'0')},
+ addMinutes(n){const w=this.state.world;let total=w.hour*60+w.minute+n;while(total>=1440){total-=1440;w.day++;this.state.player.hunger=clamp(this.state.player.hunger+8);this.state.player.thirst=clamp(this.state.player.thirst+10);this.log('새로운 날이 시작됐다.');}w.hour=Math.floor(total/60);w.minute=total%60;const p=this.state.player;p.fatigue=clamp(p.fatigue+n/70);p.hunger=clamp(p.hunger+n/210);p.thirst=clamp(p.thirst+n/170);if(p.hunger>=100)p.hp=clamp(p.hp-3,0,100);if(p.thirst>=100)p.hp=clamp(p.hp-5,0,100);if(p.infection>=70)p.hp=clamp(p.hp-1,0,100);this.checkDeath()},
+ perform(action){const s=this.state;if(!s||s.world.ending)return;let mins=0;
+  if(action==='search'){mins=35;this.log('주변을 천천히 살폈다.');if(!s.world.place||!PLACES.find(x=>x.id===s.world.place).safe){this.findLoot();}}
+  if(action==='rest'){mins=30;s.player.fatigue=clamp(s.player.fatigue-18);s.player.stress=clamp(s.player.stress-5);this.log('잠시 몸을 쉬게 했다.');}
+  if(action==='meal'){if(this.removeItem('can',1)){mins=15;s.player.hunger=clamp(s.player.hunger-35);this.log('통조림으로 허기를 달랬다.')}else{this.log('먹을 것이 없다.');return}}
+  if(action==='water'){if(this.removeItem('water',1)){mins=5;s.player.thirst=clamp(s.player.thirst-38);this.log('물을 마셨다.')}else{this.log('마실 물이 없다.');return}}
+  if(action==='sleep'){mins=480;s.player.fatigue=clamp(s.player.fatigue-70);s.player.stress=clamp(s.player.stress-15);s.player.hp=clamp(s.player.hp+12);this.log('안전 구역의 지정된 휴식 공간에서 잠을 잤다.')}
+  this.addMinutes(mins);this.afterAction();},
+ move(id){const s=this.state;if(!s||s.world.ending||s.combat)return;const dest=PLACES.find(x=>x.id===id);if(!dest)return;const cur=PLACES.find(x=>x.id===s.world.place);const travel=dest.region===cur.region?10:rand(25,45);s.world.place=id;s.world.region=dest.region;s.world.visited.push(id);this.addMinutes(travel);this.log(dest.name+'(으)로 이동했다. 이동 시간 '+travel+'분.');$('sceneText').textContent=dest.desc;$('eventBox').innerHTML='';this.afterAction();if(dest.safe){this.tryNpcAtPlace()}else if(Math.random()<.48){this.encounter()}this.drawMap();this.render();},
+ afterAction(){this.checkDeath();if(!this.state.world.ending){this.checkGoal();this.render()}},
+ findLoot(){const pool=['water','can','cloth','herb','battery','scrap'];const key=pool[rand(0,pool.length-1)];if(this.addItem(key,1))this.log(ITEM[key].name+'을(를) 발견했다.');else this.log('가방이 가득 차 있어 물자를 챙기지 못했다.')},
+ itemCount(k){return this.state.inventory[k]||0},
+ weight(){return Object.entries(this.state.inventory).reduce((a,[k,v])=>a+(ITEM[k]?.weight||1)*v,0)},
+ addItem(k,n){const s=this.state;if(this.weight()+(ITEM[k]?.weight||1)*n>s.player.capacity||Object.values(s.inventory).filter(v=>v>0).length>=s.player.slots&&!s.inventory[k])return false;s.inventory[k]=(s.inventory[k]||0)+n;return true},
+ removeItem(k,n){if(this.itemCount(k)<n)return false;this.state.inventory[k]-=n;if(!this.state.inventory[k])delete this.state.inventory[k];return true},
+ useItem(k){const p=this.state.player;if(k==='bandage'&&this.removeItem(k,1)){p.hp=clamp(p.hp+20);p.stress=clamp(p.stress-3)}else if(k==='medkit'&&this.removeItem(k,1)){p.hp=clamp(p.hp+40);p.infection=clamp(p.infection-8)}else if(k==='filter'&&this.removeItem(k,1)){p.infection=clamp(p.infection-15)}else if(k==='ration'&&this.removeItem(k,1)){p.hunger=clamp(p.hunger-30)}else{this.log('지금 사용할 수 없는 물건이다.');return}this.log(ITEM[k].name+'을(를) 사용했다.');this.afterAction()},
+ openCraft(){const el=$('craftTrade');el.innerHTML='<h4>제작</h4>'+RECIPES.map((r,i)=>'<div class="itemrow"><span>'+r.name+'<small class="muted"> · '+r.mins+'분</small></span><button onclick="Game.craft('+i+')">제작</button></div>').join('')},
+ craft(i){const r=RECIPES[i];if(!r)return;for(const [k,v] of Object.entries(r.cost))if(this.itemCount(k)<v){this.log('재료가 부족하다: '+ITEM[k].name);this.render();return false}for(const [k,v] of Object.entries(r.cost))this.removeItem(k,v);for(const [k,v] of Object.entries(r.out))if(!this.addItem(k,v)){for(const [rk,rv] of Object.entries(r.cost))this.addItem(rk,rv);this.log('가방 공간이 부족해 제작을 취소했다.');this.render();return false}this.addMinutes(r.mins);this.log(r.name+' 제작 완료.');this.afterAction();return true},
+ openTrade(){const stock=['water','can','bandage','herb','cloth','battery','scrap','ration','toolkit'];$('craftTrade').innerHTML='<h4>물물교환 · 장터</h4><p class="small muted">물건의 가치 합계가 비슷할 때 교환할 수 있어.</p>'+stock.map(k=>'<div class="itemrow"><span>'+ITEM[k].name+' <small class="muted">가치 '+ITEM[k].value+' · 보유 '+this.itemCount(k)+'</small></span><button onclick="Game.trade('+JSON.stringify(k)+')">1개 교환</button></div>').join('')},
+ trade(k){const offer=this.state.inventory;const owned=Object.keys(offer).find(x=>offer[x]>0&&x!==k);if(!owned){this.log('교환할 물건이 없다.');return}const diff=Math.abs(ITEM[owned].value-ITEM[k].value);if(diff>4){this.log('가치 차이가 너무 커서 교환이 성립하지 않았다.');return}if(!this.removeItem(owned,1)||!this.addItem(k,1)){this.addItem(owned,1);this.log('가방 공간이 부족하다.');return}this.log(ITEM[owned].name+'과(와) '+ITEM[k].name+'을(를) 교환했다.');this.render();this.openTrade()},
+ tryNpcAtPlace(){const n=this.state.npcs.find(n=>n.place===this.state.world.place&&!n.met);if(n)this.meetNpc(n.id)},
+ meetNpc(id){const n=this.state.npcs.find(x=>x.id===id);if(!n||n.met)return;n.met=true;this.state.player.karma=clamp(this.state.player.karma+1);this.log('새로운 사람을 만났다.');$('eventBox').innerHTML='<div class="event"><b>첫 만남 · '+n.name+'</b><p>'+n.event+'</p>'+n.choices.map((c,i)=>'<button onclick="Game.npcChoice(\''+id+'\','+i+')">'+c[0]+'</button> ').join('')+'</div>';this.render()},
+ npcChoice(id,i){const n=this.state.npcs.find(x=>x.id===id);if(!n||n.eventDone)return;const c=n.choices[i];n.trust=clamp(n.trust+c[1]);n.affection=clamp(n.affection+c[2]);n.eventDone=true;n.relationship=n.affection>=20?'친근한 사이':'아는 사이';this.state.player.karma=clamp(this.state.player.karma+(c[1]>=6?3:c[1]<0?-2:1));this.log(n.name+'과(와)의 첫 만남이 기억에 남았다. 신뢰 '+(c[1]>=0?'+':'')+c[1]+'.');$('eventBox').innerHTML='<div class="event"><b>'+n.name+'</b><p>'+n.name+'은(는) '+n.personality+' 성향을 보인다. '+n.like+'을(를) 중요하게 여기는 듯하다.</p><button onclick="Game.talkNpc(\''+id+'\')">대화하기 (20분)</button><button onclick="Game.helpNpc(\''+id+'\')">도움 주기 (30분)</button></div>';this.render()},
+ talkNpc(id){const n=this.state.npcs.find(x=>x.id===id);if(!n?.met)return;n.trust=clamp(n.trust+3);n.affection=clamp(n.affection+2);this.addMinutes(20);this.log(n.name+'과(와) 대화를 나눴다.');this.afterAction()},
+ helpNpc(id){const n=this.state.npcs.find(x=>x.id===id);if(!n?.met)return;if(!this.removeItem('can',1)){this.log('나눠 줄 식량이 없다.');return}n.trust=clamp(n.trust+8);n.affection=clamp(n.affection+5);this.state.player.karma=clamp(this.state.player.karma+5);this.addMinutes(30);this.log(n.name+'에게 식량을 나눠 주었다.');this.afterAction()},
+ encounter(){const s=this.state;if(s.world.region==='안전 구역')return;const roll=Math.random();if(roll<.58){s.combat={enemy:'감염자',hp:42,max:42,turn:1};this.log('길목에서 감염자와 마주쳤다.');this.drawBattle();this.showScreen('battle')}else if(roll<.8){this.findLoot();this.render()}else{const n=s.npcs.find(n=>n.met&&n.place===s.world.place);if(n){this.log(n.name+'이(가) 근처에서 신호를 보냈다.');}else this.log('멀리서 움직이는 그림자가 보였지만, 이내 시야에서 사라졌다.');this.render()}},
+ battleAction(action){const s=this.state,c=s.combat,p=s.player;if(!c)return;let playerDmg=0;
+  if(action==='strike')playerDmg=rand(10,17)+(p.skill==='관찰'?2:0);
+  if(action==='guard'){c.guard=true;this.log('상대의 움직임을 살피며 방어했다.')}
+  if(action==='evade'){if(Math.random()<.6){c.enemyTurn=false;this.log('거리를 벌리는 데 성공했다.');s.combat=null;this.showScreen('game');this.render();return}else this.log('퇴로가 막혀 상대의 차례가 이어진다.')}
+  if(action==='item'){if(this.removeItem('bandage',1)){p.hp=clamp(p.hp+18);this.log('회복 물품을 사용했다.')}else{this.log('사용할 회복 물품이 없다.');return}}
+  if(playerDmg){c.hp-=playerDmg;this.log('차례를 이용해 상대의 기세를 꺾었다.');}
+  if(c.hp<=0){s.combat=null;this.log('상대가 더 이상 위협이 되지 않는다.');p.stress=clamp(p.stress-4);this.showScreen('game');this.render();return}
+  const hit=c.guard?rand(2,5):rand(6,12);c.guard=false;p.hp=clamp(p.hp-hit);p.stress=clamp(p.stress+5);p.infection=clamp(p.infection+(Math.random()<.15?2:0));this.log('상대의 반격으로 건강이 '+hit+' 감소했다.');this.feedback('damage');this.addMinutes(3);this.checkDeath();if(!s.world.ending){this.drawBattle();$('battleText').textContent='상대 상태 '+c.hp+'/'+c.max+' · 내 건강 '+p.hp+'/100';this.render()}
+ },
+ drawBattle(){const c=$('battleCanvas').getContext('2d');c.imageSmoothingEnabled=false;c.clearRect(0,0,640,300);c.fillStyle='#27372f';c.fillRect(0,0,640,300);c.fillStyle='#34463a';for(let i=0;i<640;i+=32)c.fillRect(i,210+(i%5)*3,25,90);c.fillStyle='#9a8b70';c.fillRect(0,235,640,65);this.drawPixelPerson(c,150,90,this.state.player,true);this.drawPixelEnemy(c,430,92);c.fillStyle='#e9eee8';c.font='16px dalmoori';c.fillText(this.state.player.name,95,60);c.fillText('감염자',430,60);c.fillStyle='#111';c.fillRect(390,70,160,10);c.fillStyle='#bd766c';c.fillRect(390,70,160*(this.state.combat.hp/this.state.combat.max),10)},
+ drawPixelPerson(ctx,x,y,p){ctx.save();ctx.translate(x,y);ctx.scale(3,3);ctx.fillStyle=p.bottom;ctx.fillRect(8,35,7,18);ctx.fillRect(22,35,7,18);ctx.fillStyle='#302e2b';ctx.fillRect(7,51,9,4);ctx.fillRect(21,51,10,4);ctx.fillStyle=p.top;ctx.fillRect(6,18,26,18);ctx.fillRect(2,20,6,15);ctx.fillRect(30,20,6,15);ctx.fillStyle=p.skin;ctx.fillRect(13,8,12,12);ctx.fillStyle=p.hairColor;ctx.fillRect(11,5,16,7);ctx.fillRect(10,9,3,9);ctx.fillRect(25,9,3,9);ctx.fillStyle=p.eyeColor;ctx.fillRect(15,13,2,2);ctx.fillRect(22,13,2,2);ctx.restore()},
+ drawPixelEnemy(ctx,x,y){ctx.save();ctx.translate(x,y);ctx.scale(3,3);ctx.fillStyle='#38453c';ctx.fillRect(8,18,25,28);ctx.fillRect(3,20,7,20);ctx.fillRect(30,21,8,18);ctx.fillStyle='#687264';ctx.fillRect(13,6,16,15);ctx.fillStyle='#c17d6e';ctx.fillRect(15,12,3,3);ctx.fillRect(24,12,3,3);ctx.fillStyle='#292d2a';ctx.fillRect(8,45,9,9);ctx.fillRect(24,45,9,9);ctx.restore()},
+ drawMap(){const canvas=$('worldMap'),ctx=canvas.getContext('2d'),s=this.state;if(!s)return;ctx.imageSmoothingEnabled=false;ctx.fillStyle='#23342b';ctx.fillRect(0,0,640,390);ctx.fillStyle='#334b3c';for(let i=0;i<22;i++){ctx.fillRect((i*83)%620,(i*47)%370,32,24)}ctx.strokeStyle='#8d896e';ctx.lineWidth=13;ctx.beginPath();ctx.moveTo(20,190);ctx.lineTo(170,150);ctx.lineTo(330,205);ctx.lineTo(610,120);ctx.stroke();ctx.strokeStyle='#416d76';ctx.lineWidth=28;ctx.beginPath();ctx.moveTo(40,340);ctx.quadraticCurveTo(220,240,390,320);ctx.stroke();ctx.font='15px dalmoori';ctx.fillStyle='#e8eee7';PLACES.forEach(p=>{const unlocked=p.safe||s.map.unlocked.includes(p.region);if(!unlocked)return;ctx.fillStyle=p.safe?'#83aa82':'#c4a46f';ctx.beginPath();ctx.arc(p.x,p.y, p.id===s.world.place?10:6,0,Math.PI*2);ctx.fill();ctx.fillStyle='#f0eee3';ctx.fillText(p.name,p.x+10,p.y-9)});$('mapButtons').innerHTML=[...new Set(PLACES.map(p=>p.region))].map(r=>'<button class="placebtn" onclick="Game.showPlaces(\''+r+'\')">'+r+'</button>').join('');$('regionName').textContent=s.world.region;$('mapHint').textContent=s.world.region==='안전 구역'?'안전 구역에서는 감염자 조우가 발생하지 않는다.':'바깥 구역에서는 이동과 탐색 중 무작위 사건이 발생할 수 있다.'},
+ showPlaces(region){const s=this.state;const places=PLACES.filter(p=>p.region===region&&(p.safe||s.map.unlocked.includes(region)));$('mapHint').innerHTML='<b>'+region+'</b><br>'+places.map(p=>'<button class="placebtn" onclick="Game.move(\''+p.id+'\')">'+p.name+'</button>').join(' ')},
+ checkDeath(){const p=this.state.player;if(p.hp<=0||p.infection>=100){this.end('생존 기록 종료','건강 또는 감염 수치가 한계에 도달했다. 이번 기록은 여기서 멈춘다.');}},
+ checkGoal(){const s=this.state;if(s.world.day>=30){this.end('30일 생존','30일 동안 생존했다. 안전 구역에는 새로운 계획을 세울 시간이 생겼다.');return}if(s.goal.radio&&s.world.place==='relay'){this.end('신호의 끝','통신 부품을 이용해 중계 시설을 복구했다. 멀리서 응답 신호가 돌아왔다.');}},
+ checkEnding(){const s=this.state;if(s.goal.radio){this.end('탈출 경로 발견','통신 부품을 확보했다. 중계 시설에서 구조 신호를 보낼 수 있다.')}else this.log('장거리 통신 부품을 아직 확보하지 못했다. 산업 지대와 지하 구역을 더 살펴보자.');this.render()},
+ end(title,text){this.state.world.ending=title;$('endingTitle').textContent=title;$('endingText').textContent=text;this.showScreen('ending')},
+ checkDeathAndGoal(){this.checkDeath();this.checkGoal()},
+ feedback(type){document.body.classList.remove('hitflash');void document.body.offsetWidth;if(type==='damage'){document.body.classList.add('hitflash');setTimeout(()=>document.body.classList.remove('hitflash'),180)}},
+ render(){const s=this.state;if(!s)return;const p=s.player,w=s.world;const place=PLACES.find(x=>x.id===w.place);$('where').textContent=w.region+' · '+place.name;$('clock').textContent=w.day+'일차 '+this.clockText();$('weather').textContent=w.weather;$('placeTag').textContent=place.safe?'안전':'외부 위험';$('playerName').textContent=p.name;$('playerMeta').textContent=p.age+'세 · '+p.pronoun;$('playerTrait').textContent=p.trait+' · 특기 '+p.skill;$('karma').textContent='카르마 '+p.karma;drawPortrait($('playerPortrait'),p);
+  $('stats').innerHTML=[['건강',p.hp],['허기',100-p.hunger],['갈증',100-p.thirst],['피로',p.fatigue],['감염',p.infection],['스트레스',p.stress]].map(([k,v])=>'<div class="stat"><span>'+k+'</span><div class="bar '+(v<25?'low':'')+'"><i style="width:'+clamp(v)+'%"></i></div><b>'+Math.round(v)+'</b></div>').join('');
+  $('npcList').innerHTML=s.npcs.filter(n=>n.met).map(n=>'<div class="npcrow"><div><b>'+n.name+'</b><div class="muted">'+n.job+' · '+n.personality+'</div><div class="small">'+n.look+'</div></div><div class="small">신뢰 '+n.trust+'<br>호감 '+n.affection+'</div></div>').join('')||'아직 만난 사람이 없다.';
+  $('capacity').textContent=this.weight()+'/'+p.capacity+' 무게 · '+Object.values(s.inventory).filter(v=>v>0).length+'/'+p.slots+'종류';
+  $('inventory').innerHTML=Object.entries(s.inventory).filter(([k,v])=>v>0).map(([k,v])=>'<div class="itemrow"><span>'+ITEM[k].name+' × '+v+' <small class="muted">가치 '+ITEM[k].value+'</small></span><button onclick="Game.useItem(\''+k+'\')">사용</button></div>').join('')||'비어 있음';
+  $('goalText').innerHTML='목표: 30일 생존 또는 통신 부품 확보 후 중계 시설 도달.<br>통신 부품: '+(s.goal.radio?'확보':'미확보')+'<br>방문 장소: '+new Set(w.visited).size+'곳';
+  $('log').innerHTML=s.log.map(l=>'<p><span class="muted">['+l.day+'일 '+l.time+']</span> '+l.text+'</p>').join('');
+ },
+ saveCurrent(){const saves=JSON.parse(localStorage.getItem('life_saves_v2')||'{}');const slot=prompt('저장 슬롯 번호 (1~3)','1');if(!slot||!['1','2','3'].includes(slot))return;saves[slot]=clone(this.state);localStorage.setItem('life_saves_v2',JSON.stringify(saves));this.log('슬롯 '+slot+'에 저장했다.');this.render()},
+ openSaves(){this.renderSaves();this.showScreen('saves')},
+ renderSaves(){const saves=JSON.parse(localStorage.getItem('life_saves_v2')||'{}');$('saveList').innerHTML=[1,2,3].map(i=>{const s=saves[i];return '<div class="itemrow"><span>슬롯 '+i+' · '+(s?s.player.name+' / '+s.world.day+'일차':'비어 있음')+'</span><div class="row"><button '+(!s?'disabled':'')+' onclick="Game.loadSlot('+i+')">불러오기</button><button '+(!s?'disabled':'')+' onclick="Game.deleteSlot('+i+')">삭제</button></div></div>'}).join('')},
+ loadSlot(i){const s=JSON.parse(localStorage.getItem('life_saves_v2')||'{}');if(!s[i])return;this.state=s[i];this.showScreen('game');this.render();this.drawMap()},
+ deleteSlot(i){const s=JSON.parse(localStorage.getItem('life_saves_v2')||'{}');delete s[i];localStorage.setItem('life_saves_v2',JSON.stringify(s));this.renderSaves()}
 };
-function showRegion(region){const first=places.find(p=>regionOf(p.id)===region);if(first)drawAtlas(region)}
-function drawAtlas(region){const visible=places.filter(p=>regionOf(p.id)===region);const coords={square:[150,125],store:[265,95],clinic:[360,145],school:[250,220],police:[90,230],park:[400,250],shelter:[170,300],house:[330,320],workshop:[470,180],forest:[120,80],mall:[280,70],hospital:[400,130],base:[470,270],gas:[250,340]};const nodes=visible.map(p=>{const [x,y]=coords[p.id]||[250,180];return '<g onclick="move(\''+p.id+'\')" style="cursor:pointer"><circle class="pin '+(p.id===state.place?'active':'')+'" cx="'+x+'" cy="'+y+'" r="9"/><text x="'+(x+12)+'" y="'+(y+4)+'">'+p.name+'</text></g>'}).join('');$('atlasImage').innerHTML='<svg viewBox="0 0 560 390" role="img" aria-label="'+region+' 지역 지도"><path class="water" d="M0 0H560V390H0Z"/><path class="land" d="M35 35 Q130 5 220 45 T500 35 L530 340 Q420 390 300 350 T35 355Z"/><path class="road" d="M65 190 Q150 120 260 175 T490 155 M150 60 Q210 170 260 340 M390 60 Q350 190 430 320"/><path class="water" d="M0 280 Q100 230 180 280 T350 285 T560 260 V390 H0Z"/>'+nodes+'</svg>'}
-const oldSave=saveGame;
-saveGame=function(){if(state){oldSave();localStorage.setItem('life-zombie-save',JSON.stringify(state))}};
-const oldLoad=loadGame;
-loadGame=function(){oldLoad();if(state){state.stats.감염=state.stats.감염||0;state.npcs.forEach(n=>{n.trust=n.trust??20;n.affection=n.affection??0;n.likes=n.likes||'편안한 대화';n.dislikes=n.dislikes||'무례한 태도';n.style=n.style||'주변을 살핀다.';n.romance=!!n.romance});state.dead=!!state.dead;if(state.dead)showDeath();render()}};
-
-
-/* LIFE 0.3 — illustrated survivor sprites, safe zones, regional atlas, combat and karma */
-document.querySelector('.pixel-editor')?.closest('.field')?.remove();
-const appearanceNote=document.createElement('div');
-appearanceNote.className='field wide';
-appearanceNote.innerHTML='<label>자동 생성 캐릭터 미리보기</label><div id="autoSpritePreview" class="panel small muted">외모 설정을 바탕으로 쯔꾸르풍 도트 캐릭터가 자동 생성됩니다.</div>';
-document.querySelector('#appearance')?.closest('.field')?.after(appearanceNote);
-const spritePal={skin:'#c99576',shade:'#855c4e',hair:'#49352e',hairHi:'#765344',eye:'#252126',shirt:'#4b574d',shirtHi:'#758274',pants:'#34485c',pantsHi:'#62788a',shoe:'#332f2b',metal:'#a9a49a'};
-function makeSprite(seed,dir='down',pose=0){
- const a=Array(16*24).fill('transparent'),put=(x,y,c)=>{if(x>=0&&x<16&&y>=0&&y<24)a[y*16+x]=c};
- const p=seed||{},hair=(p.hair||'').includes('금발')?'#b58a50':(p.hair||'').includes('갈색')?'#624538':'#302a29';
- const skin=spritePal.skin,shirt=(p.outfit||'').includes('군용')?'#515b43':(p.outfit||'').includes('코트')?'#393d48':(p.outfit||'').includes('운동')?'#526477':'#454b48';
- // shoes and legs
- for(let y=20;y<23;y++)for(let x=4;x<7;x++)put(x,y,spritePal.shoe);
- for(let y=20;y<23;y++)for(let x=9;x<12;x++)put(x,y,spritePal.shoe);
- for(let y=15;y<21;y++)for(let x=4;x<7;x++)put(x,y,spritePal.pants);
- for(let y=15;y<21;y++)for(let x=9;x<12;x++)put(x,y,spritePal.pants);
- put(5,18,spritePal.pantsHi);put(10,17,spritePal.pantsHi);
- // torso and arms
- for(let y=9;y<16;y++)for(let x=4;x<12;x++)put(x,y,shirt);
- for(let y=10;y<15;y++){put(3,y,shirt);put(12,y,shirt)}
- put(3,15,skin);put(12,15,skin);
- // neck and face
- for(let x=7;x<9;x++)put(x,8,spritePal.shade);
- for(let y=4;y<9;y++)for(let x=5;x<11;x++)put(x,y,skin);
- for(let x=6;x<10;x++)put(x,4,hair);
- for(let x=5;x<11;x++)put(x,3,hair);
- put(5,5,hair);put(10,5,hair);put(6,3,spritePal.hairHi);put(9,3,spritePal.hairHi);
- put(6,6,spritePal.eye);put(9,6,spritePal.eye);put(7,8,spritePal.shade);put(8,8,spritePal.shade);
- if((p.hair||'').includes('긴')||(p.hair||'').includes('웨이브')){for(let y=6;y<12;y++){put(4,y,hair);put(11,y,hair)}}
- if((p.hair||'').includes('묶')){put(11,4,hair);put(12,5,hair)}
- if(dir==='up'){for(let x=5;x<11;x++)put(x,5,hair);for(let y=4;y<9;y++){put(6,y,hair);put(9,y,hair)}}
- if(dir==='left'||dir==='right'){put(5,6,hair);put(10,6,skin);put(9,7,spritePal.eye)}
- if(pose){put(2,12,shirt);put(13,11,skin);put(13,10,spritePal.metal)}
- return a;
-}
-function spriteMarkup(seed,portrait=false){
- const dirs=['down','up','left','right'];
- return '<div class="sprite-sheet '+(portrait?'portrait-sheet':'')+'">'+dirs.map(d=>'<div class="sprite-frame"><div class="sprite-label">'+({down:'정면',up:'후면',left:'좌측',right:'우측'}[d])+'</div><div class="sprite-grid">'+makeSprite(seed,d).map(c=>'<i style="background:'+(c==='transparent'?'transparent':c)+'"></i>').join('')+'</div></div>').join('')+'</div>';
-}
-function previewAutoSprite(){const el=$('autoSpritePreview');if(!el)return;const p={hair:$('hair').value,outfit:$('outfit').value,eyes:$('eyes').value};el.innerHTML=spriteMarkup(p)+'<div class="muted" style="margin-top:8px">머리: '+p.hair+' · 눈: '+p.eyes+' · 복장: '+p.outfit+'</div>'}
-['hair','eyes','outfit'].forEach(id=>$(id)?.addEventListener('change',previewAutoSprite));
-const spriteStyle=document.createElement('style');
-spriteStyle.textContent='.sprite-sheet{display:flex;gap:8px;flex-wrap:wrap;align-items:end}.sprite-frame{background:#171d1b;border:1px solid #455149;border-radius:8px;padding:7px;text-align:center;min-width:74px}.sprite-label{font-size:10px;color:#b8c3b9;margin-bottom:5px}.sprite-grid{display:grid;grid-template-columns:repeat(16,5px);grid-template-rows:repeat(24,5px);width:80px;height:120px;image-rendering:pixelated;background:radial-gradient(#323a35,#202622)}.sprite-grid i{width:5px;height:5px}.portrait-sheet{justify-content:center}.portrait-sheet .sprite-grid{transform:scale(1.35);transform-origin:top center;margin:0 14px 42px}.portrait-sheet .sprite-frame{min-width:105px}#portrait{width:auto;height:auto;min-height:130px;padding:8px;display:block}.map-art{width:100%;height:auto;display:block;border-radius:8px;background:#202b29}.map-art text{font:12px system-ui;fill:#f0eadb;paint-order:stroke;stroke:#1b2422;stroke-width:3px;stroke-linejoin:round}.map-art .roadline{fill:none;stroke:#c6b58d;stroke-width:8;stroke-linecap:round;stroke-dasharray:2 2}.map-art .river{fill:none;stroke:#477b82;stroke-width:32}.map-art .zone{fill:#3e5948;stroke:#819277;stroke-width:2}.map-art .map-pin{cursor:pointer;fill:#e2bd73;stroke:#17211c;stroke-width:3}.map-art .map-pin.active{fill:#d97868;stroke:#fff}.combat-panel{border:1px solid #a65f53;background:#2d211f;border-radius:10px;padding:14px;margin-top:12px}.combat-panel button{margin:5px 4px 0 0}.status-chip{display:inline-block;padding:3px 7px;border:1px solid #66766a;border-radius:20px;margin:2px;font-size:11px}';
-document.head.appendChild(spriteStyle);
-const originalBeginFor03=beginGame;
-beginGame=function(){
- originalBeginFor03();
- if(!state)return;
- state.person.pixelArt=null;
- state.stats.건강=100;state.stats.감염=0;state.stats.스트레스=12;state.stats.트라우마=0;state.stats.카르마=50;
- state.inventory=['생수','통조림','붕대','손전등','천','나뭇가지'];
- state.region='안전 구역';state.karma=50;state.combat=null;state.dead=false;
- state.npcs=makeDetailedNPCs();
- writeLog('안전 구역 제3구획, 임시 거주 등록이 완료되었다. 외곽 출입은 허가증이 필요하다.');
- render();saveGame();previewAutoSprite();
-};
-function makeDetailedNPCs(){
- const specs=[
- {name:'윤서진',age:31,job:'안전 구역 의무관',place:'clinic',personality:'책임감 강한 현실주의자',desc:'짧게 자른 검은 머리와 피곤한 눈. 소매를 걷은 의료복에 낡은 손목시계를 차고 있다.',likes:'정직한 보고와 의료 물자',dislikes:'근거 없는 낙관',trust:24,affection:3},
- {name:'강태오',age:28,job:'정비 담당',place:'workshop',personality:'무뚝뚝하지만 의리 있는',desc:'짙은 갈색 머리를 대충 묶었다. 기름때 묻은 작업복과 왼쪽 뺨의 작은 흉터가 눈에 띈다.',likes:'도구 정리와 약속',dislikes:'장비를 함부로 다루는 행동',trust:18,affection:0},
- {name:'최나린',age:23,job:'기록관 겸 정찰 보조',place:'shelter',personality:'호기심 많고 관찰력이 좋은',desc:'어깨까지 오는 밤색 머리, 둥근 안경. 목에 작은 쌍안경을 걸고 수첩을 들고 다닌다.',likes:'새로운 정보와 지도',dislikes:'질문을 무시하는 태도',trust:20,affection:5},
- {name:'박도현',age:36,job:'안전 구역 경비 책임자',place:'police',personality:'엄격하고 경계심 강한',desc:'짧은 흑발과 굳은 표정. 낡은 방탄 조끼 위에 구역 완장을 착용했다.',likes:'규칙 준수와 침착함',dislikes:'무단 출입과 거짓말',trust:12,affection:0},
- {name:'이하은',age:26,job:'식량 배급 담당',place:'square',personality:'사교적이고 낙천적인',desc:'높게 묶은 검은 머리, 햇볕에 그을린 얼굴. 군용 조끼 주머니마다 메모지가 꽂혀 있다.',likes:'협력과 유머',dislikes:'이기적인 행동',trust:28,affection:8}
- ];
- return specs.map(n=>({...n,relation:n.trust,romance:false,mood:'경계 중',style:n.desc}));
-}
-function renderCharacterPortrait(){
- const el=$('portrait');if(el&&state)el.innerHTML=spriteMarkup(state.person,true);
-}
-const priorRender03=render;
-render=function(){if(!state)return;priorRender03();renderCharacterPortrait();$('pmeta').textContent=state.person.age+'세 · '+state.person.gender+' · '+state.person.hair;$('trait').textContent=state.person.desc||state.person.personality+' · '+state.person.skill+' · '+state.person.outfit+' · '+state.person.appearance;
- $('stats').innerHTML=Object.entries(state.stats).map(([k,v])=>'<div class="barrow"><span>'+k+'</span><div class="bar"><i style="width:'+Math.max(0,Math.min(100,v))+'%;background:'+(v<25?'var(--red)':'var(--green)')+'"></i></div><b>'+Math.round(v)+'</b></div>').join('');
- $('npcs').innerHTML=state.npcs.map(n=>'<div class="npc"><div><b>'+escapeHTML(n.name)+'</b><div class="small muted">'+n.age+'세 · '+escapeHTML(n.job)+'</div><div class="small">'+escapeHTML(n.personality)+'</div><div class="tag">'+(n.place===state.place?'이곳에 있음':(places.find(x=>x.id===n.place)?.name||'안전 구역'))+'</div></div><span class="small">♥ '+n.affection+'<br>신뢰 '+n.trust+'</span></div>').join('');
- const oldInfo=$('survivalInfo');if(oldInfo)oldInfo.innerHTML='감염 '+state.stats.감염+'% · 스트레스 '+state.stats.스트레스+'% · 트라우마 '+state.stats.트라우마+'%<br>카르마 '+state.stats.카르마+' / 100 · '+(state.stats.카르마>=70?'타인을 돕는 생존자':state.stats.카르마<=30?'자기보존을 우선하는 생존자':'아직 평가가 엇갈리는 생존자')+'<br>건강 0 또는 감염 100이면 사망 판정.';
-};
-function drawAtlas(region){
- const sets={
- '안전 구역':['square','shelter','clinic','police','workshop','house'],
- '마을 외곽':['forest','park','school','mall','hospital'],
- '국도':['gas','base','mall']
- };
- const ids=sets[region]||sets['안전 구역'],visible=ids.map(id=>places.find(p=>p.id===id)).filter(Boolean);
- const xy={square:[160,145],shelter:[260,185],clinic:[350,120],police:[105,250],workshop:[410,230],house:[250,280],forest:[100,90],park:[235,285],school:[360,270],mall:[430,105],hospital:[300,180],gas:[420,290],base:[130,245]};
- const pins=visible.map(p=>{const [x,y]=xy[p.id];return '<g onclick="move(\''+p.id+'\')"><circle class="map-pin '+(p.id===state.place?'active':'')+'" cx="'+x+'" cy="'+y+'" r="9"/><text x="'+(x+13)+'" y="'+(y+4)+'">'+p.name+'</text></g>'}).join('');
- $('atlasImage').innerHTML='<svg class="map-art" viewBox="0 0 560 360" role="img" aria-label="'+region+' 탐험 지도"><path class="zone" d="M22 25 Q110 2 210 28 T530 35 L535 320 Q420 350 300 330 T25 330Z"/><path class="river" d="M-10 270 Q100 215 175 245 T335 230 T570 160"/><path class="roadline" d="M65 170 Q170 80 275 160 T500 110 M180 35 Q220 150 265 325 M420 45 Q370 160 440 310"/><g opacity=".28" fill="#a4b18b"><circle cx="70" cy="70" r="24"/><circle cx="95" cy="95" r="18"/><circle cx="490" cy="260" r="30"/><circle cx="470" cy="285" r="20"/></g>'+pins+'</svg>';
-}
-function showRegion(region){const aliases={'마을':'안전 구역','외곽':'마을 외곽'};const r=aliases[region]||region;const sets={'안전 구역':['square','shelter','clinic','police','workshop','house'],'마을 외곽':['forest','park','school','mall','hospital'],'국도':['gas','base','mall']};$('regionNav').innerHTML=Object.keys(sets).map(x=>'<button class="'+(x===r?'primary':'')+'" onclick="showRegion(\''+x+'\')">'+x+'</button>').join('');drawAtlas(r);$('regionHint').textContent=r+' · 지도에서 장소를 선택해 이동할 수 있다.'}
-const priorMove03=move;
-move=function(id){if(!state||state.dead||state.combat)return;const dest=places.find(p=>p.id===id);if(!dest)return;const from=places.find(p=>p.id===state.place);const safe=['square','shelter','clinic','police','workshop','house'];const region=safe.includes(id)?'안전 구역':['gas','base'].includes(id)?'국도':'마을 외곽';state.region=region;priorMove03(id);if(!state.dead){showRegion(region);if(region!=='안전 구역'&&Math.random()<.38)randomEncounter('탐험 중');render();saveGame()}};
-function randomEncounter(trigger){
- if(!state||state.dead)return;
- const roll=Math.random();
- if(roll<.43){
-  state.combat={enemy:'감염자',hp:35+Math.floor(Math.random()*26),max:60,turn:1};
-  state.stats.스트레스=Math.min(100,state.stats.스트레스+12);
-  writeLog('어둠 속에서 감염자가 모습을 드러냈다. 거리가 빠르게 좁혀진다.');
-  $('encounterBox').innerHTML='<div class="combat-panel"><b>⚠ 전투 발생 · 감염자</b><p>낡은 옷을 걸친 감염자가 비틀거리며 다가온다. 주변에 몸을 숨길 곳이 보인다.</p><div id="enemyHealth">감염자 상태: '+state.combat.hp+' / '+state.combat.max+'</div><button class="primary" onclick="combatAction(\'attack\')">맞서 싸우기</button><button onclick="combatAction(\'guard\')">방어 태세</button><button onclick="combatAction(\'escape\')">도망치기</button></div>';
- }else if(roll<.62){
-  const npc=pick(state.npcs);writeLog('폐건물 입구에서 '+npc.name+'이(가) 당신을 불러 세웠다. '+npc.desc);
-  $('encounterBox').innerHTML='<div class="encounter"><b>우연한 만남</b><p>'+escapeHTML(npc.name)+' · '+escapeHTML(npc.personality)+'<br>'+escapeHTML(npc.desc)+'</p><button onclick="encounterChoice(\'help\')">도움 제안하기</button><button onclick="encounterChoice(\'talk\')">대화하기</button><button onclick="encounterChoice(\'leave\')">조용히 지나가기</button></div>';
- }else if(roll<.82){
-  const item=pick(['생수','통조림','건전지','천','허브']);state.inventory.push(item);writeLog('잔해 아래에서 '+item+'을(를) 발견했다.');$('encounterBox').innerHTML='<div class="encounter"><b>발견</b><p>'+item+'을(를) 얻었다.</p></div>';
- }else{
-  state.stats.스트레스=Math.min(100,state.stats.스트레스+8);writeLog('멀리서 들린 비명에 발걸음을 멈췄다. 누군가 이 근처에 있는 것 같다.');$('encounterBox').innerHTML='<div class="encounter"><b>불길한 소리</b><p>바람 사이로 짧은 비명이 들렸다.</p><button onclick="encounterChoice(\'investigate\')">소리가 난 곳 확인하기</button><button onclick="encounterChoice(\'leave\')">반대 방향으로 이동하기</button></div>';
+function drawSprite(canvas,p,dir='down',frame=0){const c=canvas.getContext('2d');c.imageSmoothingEnabled=false;c.clearRect(0,0,canvas.width,canvas.height);const px=canvas.width/32,py=canvas.height/44;c.save();c.scale(px,py);const rect=(x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(x,y,w,h)};const shade=col=>{const n=parseInt(col.slice(1),16);return '#'+[n>>16&255,n>>8&255,n&255].map(v=>Math.max(0,v-28).toString(16).padStart(2,'0')).join('')};
+ rect(11,37,4,5,'#292b29');rect(19,37,4,5,'#292b29');rect(10,41,6,2,'#4a433b');rect(18,41,6,2,'#4a433b');rect(10,25,5,13,p.bottom);rect(18,25,5,13,p.bottom);rect(9,17,15,10,p.top);rect(7,19,3,9,shade(p.top));rect(23,19,3,9,shade(p.top));rect(13,12,7,6,p.skin);
+ if(dir==='up'){rect(11,7,11,9,p.hairColor);rect(9,10,3,9,shade(p.hairColor));rect(21,10,3,9,shade(p.hairColor))}
+ else{rect(11,7,10,10,p.skin);rect(10,5,12,5,p.hairColor);rect(9,8,3,10,p.hairColor);rect(20,8,3,10,p.hairColor);rect(12,11,2,1,p.eyeColor);rect(18,11,2,1,p.eyeColor);rect(15,14,3,1,shade(p.skin));
+ if(p.hairStyle==='long'||p.hairStyle==='wavy'||p.hairStyle==='shag'){rect(8,9,3,17,p.hairColor);rect(21,9,3,17,p.hairColor);if(p.hairStyle==='wavy'){rect(7,18,3,3,shade(p.hairColor));rect(22,15,3,3,shade(p.hairColor))}}
+ if(p.hairStyle==='bob'){rect(8,9,3,12,p.hairColor);rect(21,9,3,12,p.hairColor)}
+ if(p.hairStyle==='ponytail'){rect(22,7,4,8,p.hairColor);rect(25,12,3,5,shade(p.hairColor))}
+ if(p.hairStyle==='curly'){for(let x=8;x<24;x+=4){rect(x,5,4,4,p.hairColor);rect(x-1,8,3,3,shade(p.hairColor))}}
+ if(p.hairStyle==='shaved'){rect(11,6,10,3,shade(p.hairColor))}
  }
-}
-function combatAction(action){
- if(!state?.combat||state.dead)return;const c=state.combat;
- if(action==='attack'){
-  const weapon=state.inventory.includes('수리 키트')?18:state.inventory.includes('공구')?15:11;
-  c.hp-=weapon+Math.floor(Math.random()*8);writeLog('침착하게 공격해 감염자에게 타격을 입혔다.');
- }else if(action==='guard'){state.combat.guarding=true;writeLog('주변 지형을 이용해 몸을 보호했다.')}
- else if(action==='escape'){
-  if(Math.random()<.62){state.combat=null;state.stats.스트레스=Math.min(100,state.stats.스트레스+10);writeLog('장애물을 돌아 간신히 거리를 벌렸다. 전투에서 벗어났다.');$('encounterBox').innerHTML='';render();saveGame();return}
-  writeLog('퇴로가 막혔다. 감염자가 따라붙는다.');
- }
- if(c.hp<=0){state.combat=null;state.stats.카르마=Math.max(0,state.stats.카르마-1);state.inventory.push(pick(['천','건전지','낡은 배지']));writeLog('감염자를 따돌렸다. 주변에서 작은 물건을 챙겼다.');$('encounterBox').innerHTML='<div class="encounter"><b>전투 종료</b><p>주변이 다시 조용해졌다.</p></div>'}
- else{
-  const damage=c.guarding?3:8+Math.floor(Math.random()*7);c.guarding=false;state.stats.건강=Math.max(0,state.stats.건강-damage);state.stats.감염=Math.min(100,state.stats.감염+(Math.random()<.22?2:0));state.stats.스트레스=Math.min(100,state.stats.스트레스+4);writeLog('감염자의 움직임을 피하는 과정에서 건강이 '+damage+' 감소했다.');
-  $('encounterBox').innerHTML='<div class="combat-panel"><b>⚠ 전투 중 · 감염자</b><p>상대 상태: '+Math.max(0,c.hp)+' / '+c.max+'</p><p>내 건강: '+state.stats.건강+' · 감염: '+state.stats.감염+'%</p><button class="primary" onclick="combatAction(\'attack\')">공격</button><button onclick="combatAction(\'guard\')">방어</button><button onclick="combatAction(\'escape\')">도주 시도</button></div>';
- }
- checkDeath();render();saveGame();
-}
-function encounterChoice(choice){
- if(!state)return;
- if(choice==='help'){state.stats.카르마=Math.min(100,state.stats.카르마+5);state.npcs[0].trust=Math.min(100,state.npcs[0].trust+4);writeLog('도움을 주기로 했다. 카르마가 상승했다.')}
- if(choice==='talk'){state.stats.카르마=Math.min(100,state.stats.카르마+1);writeLog('서로 필요한 정보를 나눴다.')}
- if(choice==='leave'){state.stats.카르마=Math.max(0,state.stats.카르마-1);writeLog('위험을 피하기 위해 자리를 떠났다.')}
- if(choice==='investigate'){randomEncounter('소리의 근원');return}
- $('encounterBox').innerHTML='';advance(1);render();saveGame();
-}
-function checkDeath(){if(!state||state.dead)return;const s=state.stats;if(s.건강<=0||s.감염>=100){state.dead=true;writeLog('생존 한계에 도달했다. 이번 여정은 끝났다.');showDeath()}}
-const oldAdvance03=advance;
-advance=function(n=1){if(!state||state.dead)return;oldAdvance03(n);if(!state||state.dead)return;const s=state.stats;s.스트레스=Math.min(100,(s.스트레스||0)+n*.5);if(s.허기<=0)s.건강=Math.max(0,s.건강-3*n);if(s.갈증<=0)s.건강=Math.max(0,s.건강-5*n);if(s.스트레스>=95)s.기분=Math.max(0,s.기분-2*n);if(s.감염>=60)s.건강=Math.max(0,s.건강-1*n);checkDeath()};
-function relationshipAction(action){
- if(!state||state.dead)return;const n=state.npcs.find(x=>x.place===state.place);if(!n){writeLog('이곳에는 만날 주민이 없다.');render();return}
- if(action==='talk'){n.trust=Math.min(100,n.trust+6);n.affection=Math.min(100,n.affection+4);writeLog(n.name+'과(와) 대화를 나눴다. '+n.personality+' 성향에 맞춰 천천히 신뢰를 쌓았다.')}
- if(action==='help'){if(state.inventory.includes('통조림')){state.inventory.splice(state.inventory.indexOf('통조림'),1);n.trust=Math.min(100,n.trust+14);n.affection=Math.min(100,n.affection+8);state.stats.카르마=Math.min(100,state.stats.카르마+5);writeLog(n.name+'에게 식량을 나눠 주었다. 신뢰와 카르마가 상승했다.')}else writeLog('나눠 줄 통조림이 없다.')}
- if(action==='date'){if(n.trust>=45&&n.affection>=35){n.romance=true;n.affection=Math.min(100,n.affection+8);writeLog(n.name+'과(와) 안전 구역 안뜰을 산책했다. 서로의 마음을 조심스럽게 확인했다.')}else writeLog(n.name+'은(는) 아직 관계를 서두르고 싶지 않아 한다.')}
- advance(1);render();saveGame();
-}
-const oldUseItem03=useItem;
-useItem=function(item){if(!state||state.dead)return;oldUseItem03(item);if(state){if(item==='소독제')state.stats.감염=Math.max(0,state.stats.감염-18);if(item==='붕대')state.stats.건강=Math.min(100,state.stats.건강+20);checkDeath();render();saveGame()}};
-const oldCraft03=craft;
-craft=function(i){if(!state||state.dead)return;oldCraft03(i);if(state){state.stats.카르마=Math.min(100,state.stats.카르마+0);render()}};
-const oldRandomize03=randomize;
-randomize=function(){oldRandomize03();setTimeout(previewAutoSprite,0)};
-const oldShowCreate03=showCreate;
-showCreate=function(){oldShowCreate03();document.querySelector('.pixel-editor')?.closest('.field')?.remove();previewAutoSprite()};
-const oldShowRegion03=showRegion;
-document.querySelector('#regionNav')?.insertAdjacentHTML('afterend','<div class="small muted">안전 구역을 거점으로 외곽 숲·병원·쇼핑몰·국도를 오갈 수 있다.</div>');
-
-
-/* final balancing */
-$('age').min='18';
-const randomizeFinal=randomize;
-randomize=function(){randomizeFinal();$('age').value=18+Math.floor(Math.random()*40);previewAutoSprite()};
-const baseMoveFinal=oldMove;
-move=function(id){
- if(!state||state.dead||state.combat)return;
- const dest=places.find(p=>p.id===id);if(!dest)return;
- const safe=['square','shelter','clinic','police','workshop','house'];
- state.region=safe.includes(id)?'안전 구역':['gas','base'].includes(id)?'국도':'마을 외곽';
- baseMoveFinal(id);
- if(!state.dead&&state.region!=='안전 구역'&&Math.random()<.38)randomEncounter('탐험 중');
- render();saveGame();showRegion(state.region);
-};
-
-/* LIFE 0.4 — Seoul 2030 and discovery systems */
-const seoulPlaceData={
- square:['청량리 안전구역 광장','청량리역 일대에 세워진 임시 안전구역의 중심 광장. 방호벽 너머로 고층 주거동과 꺼진 전광판이 보인다.','안전 구역'],
- store:['전농동 편의점','전농동 골목의 작은 편의점. 자동문은 반쯤 열린 채 멈췄고 바닥에는 배송 상자가 쌓여 있다.','서울 도심'],
- clinic:['동대문 임시의료소','옛 의원 건물을 개조한 의료소. 비상 발전기가 낮게 울리고 접수대 위에는 분류표가 놓여 있다.','안전 구역'],
- school:['서울시립대 캠퍼스','담장 일부가 무너진 캠퍼스. 잔디밭에는 임시 텐트 자국이 남았고 중앙도서관 창문은 어둡다.','서울 도심'],
- police:['동대문 통합상황실','구 파출소와 행정시설을 연결한 통합상황실. 벽면 모니터에는 구역별 전력 상태가 표시된다.','안전 구역'],
- park:['중랑천 둔치','중랑천 산책로. 자전거 도로 위로 잡초가 올라왔고 멀리 내부순환로의 차량들이 보인다.','하천·녹지'],
- shelter:['청량리 제3대피소','청량리역 인근 공공시설을 개조한 대피소. 접이식 침상과 배급표가 정돈되어 있다.','안전 구역'],
- house:['전농동 주택가','낮은 빌라와 오래된 상가가 이어지는 주택가. 창문마다 커튼이 쳐져 있고 골목은 유난히 조용하다.','서울 도심'],
- workshop:['답십리 정비창','차량 정비소를 보급 장비 수리 공간으로 바꾼 곳. 벽에는 손으로 그린 부품 목록이 붙어 있다.','안전 구역'],
- forest:['배봉산 숲길','배봉산 산책로. 나무 사이로 동대문구 아파트 단지가 보이고 등산 안내판이 기울어져 있다.','하천·녹지'],
- mall:['청량리 민자역사','셔터가 내려간 역 상업시설. 에스컬레이터는 멈췄고 천장 유리 사이로 희미한 빛이 스민다.','서울 도심'],
- hospital:['서울의료원 분원','임시 폐쇄된 의료시설. 복도 비상등만 켜져 있고 안내 데스크에는 봉인된 상자가 남아 있다.','서울 도심'],
- base:['성수 임시물류기지','성수동 물류창고를 개조한 임시 보급 거점. 외벽에는 구호 물자 분류 기호가 남아 있다.','서울 도심'],
- gas:['동부간선도로 주유소','동부간선도로 진입로 옆 주유소. 차단봉이 내려와 있고 도로 위로 먼지가 쌓여 있다.','하천·녹지']
-};
-places.forEach(p=>{const d=seoulPlaceData[p.id];if(d){p.name=d[0];p.desc=d[1];p.region=d[2]}});
-extraPlaces.forEach(p=>{const d=seoulPlaceData[p.id];if(d){p.name=d[0];p.desc=d[1];p.region=d[2]}});
-function pixelPortrait(seed,kind){
- seed=seed||{};const hairName=seed.hair||'짙은 갈색 단발';
- const hair=seed.hairColor||(/금발|밝은/.test(hairName)?'#c58d50':/붉|적갈/.test(hairName)?'#a84f43':/갈색|밤색/.test(hairName)?'#704c3d':'#332b2b');
- const skin=seed.skinColor||'#d4a184',shade='#996c60',coat=seed.coatColor||'#52645c',eye=seed.eyeColor||'#454e58';
- const rows=40,cols=32,px=2,g=Array(rows*cols).fill('');
- const r=(x,y,w,h,c)=>{for(let yy=y;yy<y+h;yy++)for(let xx=x;xx<x+w;xx++)if(xx>=0&&xx<cols&&yy>=0&&yy<rows)g[yy*cols+xx]=c};
- r(2,31,28,9,'#171c22');r(4,30,24,10,coat);r(7,32,18,8,shade);r(11,27,10,7,skin);
- const hood=seed.hood!==undefined?seed.hood:/후드/.test(seed.outfit||'');
- if(hood){r(5,2,22,4,'#24282c');r(3,5,4,19,'#292d32');r(25,5,4,19,'#292d32');r(4,22,5,8,'#30353b');r(23,22,5,8,'#30353b');r(6,3,20,2,'#65625c')}
- r(7,5,18,19,hair);r(5,9,3,14,hair);r(24,9,3,14,hair);r(9,4,14,3,hair);
- r(8,7,3,4,seed.hairHi||'#8a6552');r(18,6,5,3,seed.hairHi||'#8a6552');
- r(9,9,14,17,skin);r(8,13,2,9,skin);r(22,13,2,9,skin);
- r(9,22,3,4,shade);r(20,22,3,4,shade);r(11,24,10,3,skin);
- r(8,7,4,7,hair);r(12,6,3,6,hair);r(16,7,3,5,hair);r(20,7,4,7,hair);
- r(10,8,2,2,seed.hairHi||'#8a6552');r(17,9,2,2,seed.hairHi||'#8a6552');
- if(/긴|웨이브|묶/.test(hairName)){r(6,15,3,13,hair);r(23,14,3,14,hair);r(7,25,3,4,seed.hairHi||'#8a6552')}
- if(/묶|포니/.test(hairName)){r(24,5,5,7,hair);r(27,8,3,5,hair)}
- r(10,15,4,1,hair);r(18,15,4,1,hair);r(10,17,4,2,'#e1d9cb');r(18,17,4,2,'#e1d9cb');
- r(11,17,2,2,eye);r(19,17,2,2,eye);r(12,17,1,1,'#171b20');r(20,17,1,1,'#171b20');
- r(15,18,2,4,shade);r(14,22,4,1,'#754c49');r(14,24,4,1,'#754c49');
- r(9,20,3,2,'#bd796d');r(20,20,3,2,'#bd796d');
- r(12,31,3,5,'#c4b6a0');r(17,31,3,5,'#c4b6a0');r(7,34,3,2,'#7b8980');r(22,34,3,2,'#7b8980');
- if(seed.glasses){r(9,16,6,1,'#7c9296');r(9,19,6,1,'#7c9296');r(9,16,1,4,'#7c9296');r(14,16,1,4,'#7c9296');r(17,16,6,1,'#7c9296');r(17,19,6,1,'#7c9296');r(17,16,1,4,'#7c9296');r(22,16,1,4,'#7c9296')}
- if(seed.scar)r(20,22,3,1,'#9c5f58');
- if(seed.mask){r(9,20,14,5,'#68716d');r(10,20,12,1,'#a5aaa0')}
- let cells='';g.forEach((c,i)=>{if(c)cells+='<rect x="'+((i%cols)*px)+'" y="'+(Math.floor(i/cols)*px)+'" width="2" height="2" fill="'+c+'"/>'});
- return '<svg class="pixel-portrait" viewBox="0 0 64 80" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="80" fill="#262a30"/>'+cells+'</svg>';
-}
-function playerPortrait(){const p=state?.person||{};return pixelPortrait({hair:p.hair,outfit:p.outfit,eyeColor:p.eyes,hood:/후드/.test(p.outfit||''),hairColor:/금발/.test(p.hair||'')?'#c58d50':/갈색|밤색/.test(p.hair||'')?'#704c3d':'#332b2b'})}
-function npcFace(n){return pixelPortrait(n)}
-makeDetailedNPCs=function(){return [
-{id:'seojin',name:'윤서진',age:31,job:'임시의료소 의무관',place:'clinic',personality:'책임감 강한 현실주의자',desc:'턱선에 닿는 검은 단발, 눈 밑의 옅은 그늘. 소매를 걷은 짙은 청록색 의료복과 낡은 손목시계를 착용했다.',hair:'짧은 검은 단발',hairColor:'#292b31',coatColor:'#4b6965',likes:'정확한 보고와 의료 물자',dislikes:'근거 없는 낙관',trust:22,affection:0,met:false,eventDone:false},
-{id:'taeo',name:'강태오',age:28,job:'정비 담당',place:'workshop',personality:'무뚝뚝하지만 약속을 지키는 의리파',desc:'짙은 갈색 머리를 낮게 묶었고 왼쪽 뺨에 작은 흉터가 있다. 기름때 묻은 작업 재킷에 공구 벨트를 둘렀다.',hair:'뒤로 묶은 짙은 갈색 머리',hairColor:'#51362e',coatColor:'#596052',scar:true,likes:'도구 정리와 약속',dislikes:'장비를 함부로 다루는 행동',trust:18,affection:0,met:false,eventDone:false},
-{id:'narin',name:'최나린',age:23,job:'기록관 겸 정찰 보조',place:'shelter',personality:'호기심 많고 관찰력이 뛰어난 기록가',desc:'어깨까지 오는 밤색 웨이브 머리와 둥근 안경. 목에 작은 쌍안경을 걸고 모서리가 닳은 수첩을 들고 있다.',hair:'밤색 웨이브 단발',hairColor:'#80513d',coatColor:'#667b79',glasses:true,likes:'새로운 정보와 지도',dislikes:'질문을 무시하는 태도',trust:20,affection:0,met:false,eventDone:false},
-{id:'dohyun',name:'박도현',age:36,job:'안전구역 경비 책임자',place:'police',personality:'규칙을 중시하는 엄격한 경계 담당자',desc:'짧게 정돈한 흑발과 굳은 눈매. 낡은 방호 조끼 위에 청색 구역 완장을 착용했다.',hair:'짧은 검은 머리',hairColor:'#25272b',coatColor:'#4a5868',likes:'규칙 준수와 침착함',dislikes:'무단 출입과 거짓말',trust:12,affection:0,met:false,eventDone:false},
-{id:'haeun',name:'이하은',age:26,job:'식량 배급 담당',place:'square',personality:'사교적이고 낙천적이며 눈치가 빠른',desc:'높게 묶은 검은 포니테일과 밝은 표정. 군용 조끼 주머니마다 배급 메모와 연필이 꽂혀 있다.',hair:'높게 묶은 검은 머리',hairColor:'#342a2a',coatColor:'#6c7251',likes:'협력과 유머',dislikes:'이기적인 행동',trust:28,affection:4,met:false,eventDone:false}
-]};
-const npcEventText={
-seojin:['의료소의 호출','접수대 안쪽에서 윤서진이 진료 기록을 정리하다 고개를 든다. “새로 온 분이죠? 의료소 물품 목록이 맞지 않아요. 잠깐 확인을 도와줄 수 있나요?”'],
-taeo:['멈춰 선 발전기','정비창 안쪽에서 금속이 부딪히는 소리가 난다. 강태오가 발전기 옆에서 말한다. “전력 공급이 불안정해. 부품 목록 좀 읽어줄래?”'],
-narin:['찢어진 서울 지도','대피소 게시판 앞에서 최나린이 찢어진 서울 지도를 펴고 있다. “중랑천 쪽 기록이 끊겼어요. 표시가 맞는지 같이 봐줄래요?”'],
-dohyun:['안전구역 출입 확인','통합상황실 입구에서 박도현이 한 걸음 다가온다. “처음 보는 얼굴이군요. 출입 기록을 남기고 구역 규칙을 안내받으세요.”'],
-haeun:['배급표의 빈칸','광장 배급대에서 이하은이 빈 배급표를 들여다본다. “오늘 배급 명단이 한 줄 비었어요. 누구 몫인지 같이 확인해 줄래요?”']
-};
-function startNpcMeeting(n){
- if(!n||n.met||n.eventDone)return;n.met=true;n.meetingPending=true;const e=npcEventText[n.id];
- const choices=[['함께 확인한다','assist'],['상황부터 질문한다','ask'],['오늘은 어렵다고 말한다','decline']];
- $('encounterBox').innerHTML='<div class="event-card"><div class="tag">새로운 생존자 · 첫 만남</div><h3>'+e[0]+'</h3><div class="npc-card"><div class="npc-face">'+npcFace(n)+'</div><div><b>'+n.name+'</b><div class="small muted">'+n.age+'세 · '+n.job+'</div><div class="small">'+n.personality+'</div></div></div><p>'+e[1]+'</p><div class="event-choices">'+choices.map(c=>'<button onclick="resolveNpcMeeting(\''+n.id+'\',\''+c[1]+'\')">'+c[0]+'</button>').join('')+'</div></div>';
- writeLog(n.name+'과(와) 처음 만났다. '+e[0]);
-}
-function resolveNpcMeeting(id,choice){
- const n=state?.npcs.find(x=>x.id===id);if(!n||n.eventDone)return;n.eventDone=true;n.meetingPending=false;
- if(choice==='assist'){n.trust+=12;n.affection+=7;state.stats.카르마=Math.min(100,(state.stats.카르마||50)+4);writeLog(n.name+'의 부탁을 도왔다. 신뢰와 호감, 카르마가 올랐다.')}
- if(choice==='ask'){n.trust+=7;n.affection+=4;writeLog(n.name+'에게 상황을 물어보고 필요한 정보를 들었다.')}
- if(choice==='decline'){n.trust=Math.max(0,n.trust-2);writeLog(n.name+'에게 지금은 어렵다고 말했다. 첫인상은 조금 어색하게 남았다.')}
- advanceMinutes(choice==='assist'?25:choice==='ask'?15:5);
- $('encounterBox').innerHTML='<div class="event-card"><b>'+n.name+'과(와)의 첫 만남</b><p>'+(choice==='assist'?'함께 일을 마치며 서로의 이름을 기억하게 되었다.':choice==='ask'?'짧은 대화를 통해 서로에 대해 조금 알게 되었다.':'인사를 나누고 각자의 일로 돌아갔다.')+'</p><button onclick="document.getElementById(\'encounterBox\').innerHTML=\'\';render();saveGame()">계속</button></div>';
- render();saveGame();
-}
-function advanceMinutes(minutes){
- if(!state||state.dead)return;let total=(state.hour||0)*60+(state.minute||0)+minutes;
- while(total>=1440){total-=1440;state.day++;writeLog('서울의 밤이 지나고 새벽이 밝아온다. 안전구역 스피커에서 일일 안내 방송이 흘러나온다.')}
- state.hour=Math.floor(total/60);state.minute=total%60;const hours=minutes/60,s=state.stats;
- s.허기=Math.max(0,s.허기-hours*1.4);s.갈증=Math.max(0,s.갈증-hours*1.8);s.피로=Math.min(100,s.피로+hours*1.2);s.스트레스=Math.min(100,(s.스트레스||0)+hours*.45);
- if(s.허기<=0)s.건강=Math.max(0,s.건강-hours*3);if(s.갈증<=0)s.건강=Math.max(0,s.건강-hours*5);if(s.피로>=98)s.건강=Math.max(0,s.건강-hours);
- if(s.감염>=60)s.건강=Math.max(0,s.건강-hours*.8);
- if(s.건강<=0||s.감염>=100){state.dead=true;writeLog('생존 한계에 도달했다. 이번 여정은 끝났다.');showDeath()}
-}
-advance=function(n=1){advanceMinutes(n*60)};
-act=function(kind){
- if(!state||state.dead)return;const p=places.find(x=>x.id===state.place);
- if(kind==='탐색'){const found=Math.random()<.72?pick(p.loot):null;if(found){state.inventory.push(found);writeLog(p.name+'을(를) 살펴보다 '+found+'을(를) 발견했다.')}else writeLog(p.name+' 주변을 살폈지만 쓸 만한 물건을 찾지 못했다.');advanceMinutes(45);if(Math.random()<.22&&state.region!=='안전 구역')randomEncounter('탐색 중')}
- else if(kind==='휴식'){state.stats.피로=Math.max(0,state.stats.피로-18);state.stats.기분=Math.min(100,state.stats.기분+4);writeLog('안전한 곳에 앉아 숨을 고른다.');advanceMinutes(30)}
- else if(kind==='식사'){const i=state.inventory.findIndex(x=>['통조림','빵','식량'].includes(x));if(i<0)writeLog('먹을 것이 없다.');else{const food=state.inventory.splice(i,1)[0];state.stats.허기=Math.min(100,state.stats.허기+35);writeLog(food+'을(를) 먹었다.')}advanceMinutes(15)}
- else if(kind==='물'){const i=state.inventory.indexOf('생수');if(i<0)writeLog('마실 물이 없다.');else{state.inventory.splice(i,1);state.stats.갈증=Math.min(100,state.stats.갈증+42);writeLog('물을 마셨다.')}advanceMinutes(5)}
- else if(kind==='정리'){writeLog('가방의 물품을 다시 정리했다.');advanceMinutes(10)}
- render();saveGame();
-};
-const travelMinutes={square:0,store:15,clinic:12,school:25,police:10,park:30,shelter:8,house:12,workshop:18,forest:35,mall:25,hospital:32,base:45,gas:38};
-move=function(id){
- if(!state||state.dead||state.combat)return;const p=places.find(x=>x.id===id);if(!p)return;
- const from=state.place;const mins=from===id?0:(travelMinutes[id]||20);state.place=id;state.region=p.region||'서울 도심';if(!state.visited.includes(id))state.visited.push(id);
- if(mins)advanceMinutes(mins);
- writeLog(p.name+'에 도착했다. '+p.desc);
- render();showRegion(state.region);
- const n=state.npcs.find(x=>x.place===id);if(n&&!n.met)startNpcMeeting(n);
- else if(state.region!=='안전 구역'&&Math.random()<.28)randomEncounter('이동 중');
- render();saveGame();
-};
-talk=function(){if(!state||state.dead)return;const n=state.npcs.find(x=>x.place===state.place&&x.met);if(!n){writeLog('이곳에는 아직 대화를 나눌 주민이 보이지 않는다.');advanceMinutes(5)}else relationshipAction('talk');render();saveGame()};
-trade=function(){if(!state||state.dead)return;const n=state.npcs.find(x=>x.place===state.place&&x.met);if(!n){writeLog('물자를 교환할 주민이 없다.');advanceMinutes(5)}else if(state.inventory.includes('통조림')){state.inventory.splice(state.inventory.indexOf('통조림'),1);state.inventory.push(pick(['붕대','건전지','빵','허브']));n.trust+=3;writeLog(n.name+'과(와) 물자를 교환했다.');advanceMinutes(20)}else{writeLog('교환할 물자가 부족하다.');advanceMinutes(5)}render();saveGame()};
-sleep=function(){if(!state||state.dead)return;state.stats.피로=Math.max(0,state.stats.피로-65);state.stats.기분=Math.min(100,state.stats.기분+8);state.stats.허기=Math.max(0,state.stats.허기-12);state.stats.갈증=Math.max(0,state.stats.갈증-15);writeLog('대피소에서 잠을 청했다. 여덟 시간이 흘렀다.');advanceMinutes(480);render();saveGame()};
-relationshipAction=function(action){
- if(!state||state.dead)return;const n=state.npcs.find(x=>x.place===state.place&&x.met);if(!n){writeLog('아직 알고 지내는 주민이 없다.');render();return}
- if(action==='talk'){const lines={seojin:'“기록은 거짓말을 하지 않아요. 적어도 우리가 제대로 남긴다면요.”',taeo:'“말보다 약속을 지키는 쪽이 편해. 다음에도 그렇게 해.”',narin:'“서울 지도를 계속 고치고 있어요. 아직 모르는 길이 너무 많거든요.”',dohyun:'“규칙은 모두를 지키기 위해 있는 겁니다.”',haeun:'“오늘은 따뜻한 물이 조금 남았어요. 이런 날도 있어야죠.”'};writeLog(n.name+': '+(lines[n.id]||'“오늘은 어떻게 지냈어요?”'));n.trust=Math.min(100,n.trust+5);n.affection=Math.min(100,n.affection+3);advanceMinutes(20)}
- else if(action==='help'){if(state.inventory.includes('통조림')){state.inventory.splice(state.inventory.indexOf('통조림'),1);n.trust+=10;n.affection+=5;state.stats.카르마=Math.min(100,(state.stats.카르마||50)+4);writeLog(n.name+'에게 식량을 나눠 주었다.');advanceMinutes(15)}else{writeLog('나눠 줄 식량이 없다.');advanceMinutes(5)}}
- else if(action==='date'){if(n.trust<35||n.affection<30)writeLog(n.name+'은(는) 아직 둘만의 시간을 보내기에는 이르다고 생각한다.');else{n.romance=true;n.affection=Math.min(100,n.affection+8);writeLog(n.name+'과(와) 안전구역 안뜰을 걸으며 서로의 이야기를 나눴다.');advanceMinutes(60)}}
- render();saveGame();
-};
-const useItemBefore04=useItem;
-useItem=function(item){if(!state||state.dead)return;const before=state.inventory.length;useItemBefore04(item);if(state.inventory.length<before){advanceMinutes(item==='생수'?5:10);render();saveGame()}};
-const craftBefore04=craft;
-craft=function(i){if(!state||state.dead)return;const before=state.inventory.length;craftBefore04(i);if(state.inventory.length>before){advanceMinutes(i===3?50:30);render();saveGame()}};
-const renderBefore04=render;
-render=function(){
- if(!state)return;renderBefore04();$('portrait').innerHTML=playerPortrait();
- $('pmeta').textContent=state.person.age+'세 · '+state.person.gender+' · '+state.person.hair;
- $('date').textContent='2030년 · '+state.day+'일차 · '+String(state.hour).padStart(2,'0')+':'+String(state.minute||0).padStart(2,'0');
- $('placeTitle').textContent=places.find(p=>p.id===state.place)?.name||'서울';
- const known=state.npcs.filter(n=>n.met);
- $('npcs').innerHTML=known.length?known.map(n=>'<div class="npc-card"><div class="npc-face">'+npcFace(n)+'</div><div><b>'+escapeHTML(n.name)+'</b><div class="small muted">'+n.age+'세 · '+escapeHTML(n.job)+'</div><div class="small">'+escapeHTML(n.personality)+'</div><div class="small muted">신뢰 '+n.trust+' · 호감 '+n.affection+'</div></div><span class="tag">'+(n.romance?'특별한 사이':'알고 지내는 사이')+'</span></div>').join(''):'<div class="small muted">아직 만난 생존자가 없다. 서울 곳곳을 탐색하며 사람들을 만나 보자.</div>';
- const here=state.npcs.find(n=>n.place===state.place&&n.met);
- $('relationshipActions').innerHTML=here?'<div class="npc-card"><div class="npc-face">'+npcFace(here)+'</div><div><b>'+escapeHTML(here.name)+'</b><div class="small">'+escapeHTML(here.desc)+'</div></div></div><div class="small muted">성격: '+escapeHTML(here.personality)+'<br>좋아하는 것: '+escapeHTML(here.likes||'협력')+'<br>불편해하는 것: '+escapeHTML(here.dislikes||'무례한 태도')+'<br>신뢰 '+here.trust+' · 호감 '+here.affection+'</div><div class="actions"><button onclick="relationshipAction(\'talk\')">대화하기</button><button onclick="relationshipAction(\'help\')">도움 주기</button><button onclick="relationshipAction(\'date\')">함께 산책하기</button></div>':'<span class="muted">이곳에서 아직 만난 주민이 없다.</span>';
- $('survivalInfo').innerHTML='행동에 따라 시간이 분 단위로 흐른다.<br>이동은 거리와 지역에 따라 8~45분, 탐색 45분, 대화 20분, 식사 15분, 수면 8시간이 소요된다.<br>2030년 서울 동대문구 일대가 주요 무대다.';
-};
-drawAtlas=function(region){
- const pts={square:[215,190],shelter:[250,220],clinic:[185,245],police:[280,185],workshop:[315,245],store:[165,155],school:[90,230],house:[135,190],park:[410,235],forest:[450,100],mall:[240,145],hospital:[325,130],base:[455,290],gas:[490,220]};
- const visible=places.filter(p=>(p.region||'서울 도심')===region);
- const pins=visible.map(p=>{const q=pts[p.id]||[280,180];return '<g onclick="move(\''+p.id+'\')"><circle class="map-pin '+(p.id===state.place?'active':'')+'" cx="'+q[0]+'" cy="'+q[1]+'" r="8"/><text x="'+(q[0]+11)+'" y="'+(q[1]+4)+'">'+p.name+'</text></g>'}).join('');
- $('atlasImage').innerHTML='<svg class="seoul-map" viewBox="0 0 560 350" role="img" aria-label="2030년 서울 동대문구 생존 지도"><rect width="560" height="350" fill="#26343a"/><path class="district" d="M15 25 L190 18 L245 75 L225 165 L120 190 L25 150Z"/><path class="district" d="M250 18 L535 25 L540 180 L435 205 L335 145 L245 80Z"/><path class="district" d="M20 205 L180 180 L280 210 L290 330 L20 330Z"/><path class="district" d="M310 205 L540 185 L540 330 L300 330Z"/><path class="river" d="M-10 295 Q100 255 190 285 T370 275 T570 240"/><path class="road" d="M25 180 Q130 135 230 185 T520 160 M180 15 Q215 130 260 330 M350 20 Q325 150 365 330"/><path d="M220 90 L245 115 L275 90 L290 120 L265 145 L235 135Z" fill="#6b6a54" stroke="#b6a57c" stroke-width="2"/><path d="M390 25 Q430 0 470 35 L455 75 L400 70Z" fill="#435b43" stroke="#819276" stroke-width="2"/><g fill="#667b65" opacity=".7"><rect x="35" y="45" width="30" height="22"/><rect x="80" y="35" width="35" height="27"/><rect x="125" y="72" width="28" height="20"/><rect x="350" y="55" width="30" height="22"/><rect x="475" y="90" width="38" height="24"/><rect x="40" y="245" width="35" height="20"/><rect x="100" y="285" width="40" height="20"/><rect x="340" y="225" width="30" height="24"/></g><g fill="#e2c58b"><text x="22" y="18">2030 SEOUL</text><text x="22" y="340">중랑천</text><text x="397" y="18">배봉산</text><text x="205" y="80">청량리역</text></g>'+pins+'</svg>';
-};
-showRegion=function(region){
- const regions=['안전 구역','서울 도심','하천·녹지'];
- $('regionNav').innerHTML=regions.map(r=>'<button class="'+(r===region?'primary':'')+'" onclick="showRegion(\''+r+'\')">'+r+'</button>').join('');
- drawAtlas(region);$('regionHint').textContent=region+' · 2030년 서울 동부권. 지도 위의 지점을 눌러 이동할 수 있다.';
-};
-const beginGameBefore04=beginGame;
-beginGame=function(){
- beginGameBefore04();if(!state)return;
- state.day=1;state.hour=9;state.minute=0;state.place='square';state.region='안전 구역';
- state.npcs=makeDetailedNPCs();state.stats.카르마=50;state.stats.건강=100;state.stats.감염=0;state.stats.스트레스=10;state.stats.트라우마=0;state.dead=false;state.combat=null;
- writeLog('2030년 서울 동대문구. 청량리 제3안전구역에서 새로운 하루가 시작된다.');
- render();show('game');showRegion('안전 구역');const first=state.npcs.find(n=>n.place==='square');if(first)startNpcMeeting(first);saveGame();
-};
-const loadGameBefore04=loadGame;
-loadGame=function(){loadGameBefore04();if(!state)return;state.minute=state.minute||0;if(!(state.npcs||[]).some(n=>n.id))state.npcs=makeDetailedNPCs();else state.npcs=state.npcs.map(n=>({...n,met:!!n.met,eventDone:!!n.eventDone}));state.region=places.find(p=>p.id===state.place)?.region||'안전 구역';render();showRegion(state.region)};
-
-
-/* Keep undiscovered NPC identities private during ambient encounters. */
-randomEncounter=function(trigger){
- if(!state||state.dead)return;
- const roll=Math.random();
- if(roll<.52){
-  state.combat={enemy:'감염자',hp:38+Math.floor(Math.random()*25),max:63,turn:1};
-  state.stats.스트레스=Math.min(100,(state.stats.스트레스||0)+12);
-  writeLog('골목의 차량 잔해 뒤에서 감염자가 모습을 드러냈다. 가까운 곳에서 빠르게 움직이는 소리가 들린다.');
-  $('encounterBox').innerHTML='<div class="event-card"><b>⚠ 감염자 조우</b><p>감염자가 길을 막아섰다. 주변을 살피며 상황을 판단해야 한다.</p><button onclick="combatAction(\'attack\')">대응하기</button><button onclick="combatAction(\'guard\')">방어 태세</button><button onclick="combatAction(\'escape\')">거리 벌리기</button></div>';
- }else if(roll<.78){
-  const item=pick(['생수','통조림','건전지','천','허브']);
-  state.inventory.push(item);writeLog('무너진 진열대 아래에서 '+item+'을(를) 발견했다.');
-  $('encounterBox').innerHTML='<div class="event-card"><b>물자 발견</b><p>'+item+'을(를) 가방에 넣었다.</p></div>';
- }else{
-  state.stats.스트레스=Math.min(100,(state.stats.스트레스||0)+7);
-  writeLog('멀리서 금속이 부딪히는 소리가 났다. 한동안 주변을 살폈지만 움직임은 보이지 않았다.');
-  $('encounterBox').innerHTML='<div class="event-card"><b>불길한 소리</b><p>서울의 적막 사이로 짧은 소음이 울렸다.</p><button onclick="document.getElementById(\'encounterBox\').innerHTML=\'\'">계속 이동</button></div>';
- }
- render();saveGame();
-};
-const craftBefore05=craft;
-craft=function(i){
- if(!state||state.dead)return;
- const logCount=state.log.length;
- craftBefore05(i);
- const success=state.log.length>logCount&&state.log[state.log.length-1].text.includes('제작을 완료했다');
- if(success){advanceMinutes(i===3?50:30);render();saveGame()}
-};
+ rect(11,18,2,8,p.skin);rect(22,18,2,8,p.skin);rect(10,27,5,2,shade(p.bottom));rect(18,27,5,2,shade(p.bottom));c.restore()}
+function drawPortrait(canvas,p){const c=canvas.getContext('2d');c.imageSmoothingEnabled=false;c.fillStyle='#252b2a';c.fillRect(0,0,96,96);c.fillStyle='#3c4540';c.fillRect(8,6,80,84);c.fillStyle='#161d1a';c.fillRect(14,10,68,78);c.fillStyle=p.top;c.fillRect(16,65,64,30);c.fillStyle=p.skin;c.fillRect(29,26,38,48);c.fillStyle=p.hairColor;c.fillRect(25,18,46,17);c.fillRect(23,28,9,43);c.fillRect(64,28,9,43);if(['long','wavy','shag'].includes(p.hairStyle)){c.fillRect(19,38,8,42);c.fillRect(69,38,8,42)}if(p.hairStyle==='ponytail'){c.fillRect(68,22,12,26)}if(p.hairStyle==='curly'){for(let x=24;x<72;x+=8)c.fillRect(x,14,9,9)}if(p.hairStyle==='shaved')c.fillRect(29,17,38,6);c.fillStyle=p.eyeColor;c.fillRect(36,45,5,4);c.fillRect(56,45,5,4);c.fillStyle='#2b2421';c.fillRect(42,61,13,2);c.fillStyle='#ffffff22';c.fillRect(31,34,3,16);c.fillRect(64,35,3,14);c.fillStyle='#6e6255';c.fillRect(13,9,70,3);c.strokeStyle='#778078';c.strokeRect(3,3,90,90)}
+function startNewGame(){Game.startNewGame()}
+function newGame(){Game.showScreen('create');Game.drawCreator()}
+function openSaves(){Game.openSaves()}
+function showScreen(id){Game.showScreen(id)}
+function randomLook(){Game.randomLook()}
+function battleAction(a){Game.battleAction(a)}
+function saveCurrent(){Game.saveCurrent()}
+function checkEnding(){Game.checkEnding()}
+window.Game=Game;Game.init();
 </script></body></html>
