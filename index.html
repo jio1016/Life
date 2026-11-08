@@ -23,6 +23,7 @@
 .dead-screen{position:fixed;inset:0;background:#080c0aee;z-index:20;display:grid;place-items:center;padding:20px;text-align:center}.dead-screen .panel{max-width:520px}
 @media(max-width:760px){.system-grid{grid-template-columns:1fr}}
 
+/* 달무리 font by RanolP, Apache License 2.0; embedded via Noonnu CDN. */
 @font-face{font-family:Dalmoori;src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2102-01@1.0/dalmoori.woff') format('woff');font-display:swap}
 body,button,input,select,textarea,h1,h2,h3,.brand,.sectiontitle,.tag,.pill{font-family:Dalmoori,monospace!important}
 body{background:linear-gradient(#111923dd,#10151af2),radial-gradient(ellipse at 50% 0%,#34465b,#10151a 75%)}
@@ -491,8 +492,8 @@ act=function(kind){
 const travelMinutes={square:0,store:15,clinic:12,school:25,police:10,park:30,shelter:8,house:12,workshop:18,forest:35,mall:25,hospital:32,base:45,gas:38};
 move=function(id){
  if(!state||state.dead||state.combat)return;const p=places.find(x=>x.id===id);if(!p)return;
- state.place=id;state.region=p.region||'서울 도심';if(!state.visited.includes(id))state.visited.push(id);
- const mins=id===state.place?0:(travelMinutes[id]||20);if(mins)advanceMinutes(mins);
+ const from=state.place;const mins=from===id?0:(travelMinutes[id]||20);state.place=id;state.region=p.region||'서울 도심';if(!state.visited.includes(id))state.visited.push(id);
+ if(mins)advanceMinutes(mins);
  writeLog(p.name+'에 도착했다. '+p.desc);
  render();showRegion(state.region);
  const n=state.npcs.find(x=>x.place===id);if(n&&!n.met)startNpcMeeting(n);
@@ -545,6 +546,6 @@ beginGame=function(){
  render();show('game');showRegion('안전 구역');const first=state.npcs.find(n=>n.place==='square');if(first)startNpcMeeting(first);saveGame();
 };
 const loadGameBefore04=loadGame;
-loadGame=function(){loadGameBefore04();if(!state)return;state.minute=state.minute||0;state.npcs=(state.npcs||[]).map(n=>({...n,met:!!n.met,eventDone:!!n.eventDone}));state.region=places.find(p=>p.id===state.place)?.region||'안전 구역';render();showRegion(state.region)};
+loadGame=function(){loadGameBefore04();if(!state)return;state.minute=state.minute||0;if(!(state.npcs||[]).some(n=>n.id))state.npcs=makeDetailedNPCs();else state.npcs=state.npcs.map(n=>({...n,met:!!n.met,eventDone:!!n.eventDone}));state.region=places.find(p=>p.id===state.place)?.region||'안전 구역';render();showRegion(state.region)};
 
 </script></body></html>
